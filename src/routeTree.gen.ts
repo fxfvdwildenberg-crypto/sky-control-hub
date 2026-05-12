@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as FlightPlanRouteImport } from './routes/flight-plan'
+import { Route as AtisRouteImport } from './routes/atis'
 import { Route as AtcRouteImport } from './routes/atc'
 import { Route as IndexRouteImport } from './routes/index'
 
 const FlightPlanRoute = FlightPlanRouteImport.update({
   id: '/flight-plan',
   path: '/flight-plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AtisRoute = AtisRouteImport.update({
+  id: '/atis',
+  path: '/atis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AtcRoute = AtcRouteImport.update({
@@ -32,30 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/atc': typeof AtcRoute
+  '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/atc': typeof AtcRoute
+  '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/atc': typeof AtcRoute
+  '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/atc' | '/flight-plan'
+  fullPaths: '/' | '/atc' | '/atis' | '/flight-plan'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/atc' | '/flight-plan'
-  id: '__root__' | '/' | '/atc' | '/flight-plan'
+  to: '/' | '/atc' | '/atis' | '/flight-plan'
+  id: '__root__' | '/' | '/atc' | '/atis' | '/flight-plan'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AtcRoute: typeof AtcRoute
+  AtisRoute: typeof AtisRoute
   FlightPlanRoute: typeof FlightPlanRoute
 }
 
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/flight-plan'
       fullPath: '/flight-plan'
       preLoaderRoute: typeof FlightPlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/atis': {
+      id: '/atis'
+      path: '/atis'
+      fullPath: '/atis'
+      preLoaderRoute: typeof AtisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/atc': {
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AtcRoute: AtcRoute,
+  AtisRoute: AtisRoute,
   FlightPlanRoute: FlightPlanRoute,
 }
 export const routeTree = rootRouteImport
