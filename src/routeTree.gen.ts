@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as FlightPlanRouteImport } from './routes/flight-plan'
+import { Route as AtcRouteImport } from './routes/atc'
 import { Route as IndexRouteImport } from './routes/index'
 
 const FlightPlanRoute = FlightPlanRouteImport.update({
   id: '/flight-plan',
   path: '/flight-plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AtcRoute = AtcRouteImport.update({
+  id: '/atc',
+  path: '/atc',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/atc': typeof AtcRoute
   '/flight-plan': typeof FlightPlanRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/atc': typeof AtcRoute
   '/flight-plan': typeof FlightPlanRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/atc': typeof AtcRoute
   '/flight-plan': typeof FlightPlanRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/flight-plan'
+  fullPaths: '/' | '/atc' | '/flight-plan'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/flight-plan'
-  id: '__root__' | '/' | '/flight-plan'
+  to: '/' | '/atc' | '/flight-plan'
+  id: '__root__' | '/' | '/atc' | '/flight-plan'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AtcRoute: typeof AtcRoute
   FlightPlanRoute: typeof FlightPlanRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/flight-plan'
       fullPath: '/flight-plan'
       preLoaderRoute: typeof FlightPlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/atc': {
+      id: '/atc'
+      path: '/atc'
+      fullPath: '/atc'
+      preLoaderRoute: typeof AtcRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AtcRoute: AtcRoute,
   FlightPlanRoute: FlightPlanRoute,
 }
 export const routeTree = rootRouteImport
