@@ -1,4 +1,5 @@
 import * as React from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type FlightStatus = "parked" | "taxi" | "airborne" | "landed";
 
@@ -27,55 +28,172 @@ export interface AtisEntry {
 interface StoreState {
   flights: FlightPlan[];
   atis: AtisEntry[];
-  addFlight: (f: Omit<FlightPlan, "id" | "createdAt" | "status"> & { status?: FlightStatus }) => void;
-  updateFlight: (id: string, patch: Partial<FlightPlan>) => void;
-  removeFlight: (id: string) => void;
-  upsertAtis: (a: Omit<AtisEntry, "id" | "updatedAt"> & { id?: string }) => void;
-  removeAtis: (id: string) => void;
+  loading: boolean;
+  addFlight: (f: Omit<FlightPlan, "id" | "createdAt" | "status"> & { status?: FlightStatus }) => Promise<void>;
+  updateFlight: (id: string, patch: Partial<FlightPlan>) => Promise<void>;
+  removeFlight: (id: string) => Promise<void>;
+  upsertAtis: (a: Omit<AtisEntry, "id" | "updatedAt"> & { id?: string }) => Promise<void>;
+  removeAtis: (id: string) => Promise<void>;
 }
 
 const StoreContext = React.createContext<StoreState | null>(null);
 
-const seedFlights: FlightPlan[] = [
-  { id: "1", callsign: "BAW245", aircraft: "B772", departure: "EGLL", arrival: "KJFK", route: "MALOT NATA TUDEP", squawk: "2451", status: "airborne", createdAt: Date.now() - 90000 },
-  { id: "2", callsign: "DLH401", aircraft: "A359", departure: "EDDF", arrival: "KJFK", route: "RIDAR NATB", squawk: "1234", status: "taxi", createdAt: Date.now() - 60000 },
-  { id: "3", callsign: "AFR083", aircraft: "B77W", departure: "LFPG", arrival: "KSFO", route: "ATSIX NATX", squawk: "3702", status: "parked", createdAt: Date.now() - 30000 },
-  { id: "4", callsign: "UAE201", aircraft: "A388", departure: "OMDB", arrival: "EGLL", route: "DESDI L223", squawk: "5421", status: "landed", createdAt: Date.now() - 10000 },
-];
+type FlightRow = {
+  id: string;
+  callsign: string;
+  aircraft: string;
+  departure: string;
+  arrival: string;
+  route: string;
+  squawk: string;
+  status: FlightStatus;
+  created_at: string;
+};
 
-const seedAtis: AtisEntry[] = [
-  { id: "a1", icao: "EGLL", runway: "27R", wind: "260/12KT", qnh: "1013", info: "C", updatedAt: Date.now() },
-  { id: "a2", icao: "KJFK", runway: "04L", wind: "040/08KT", qnh: "1015", info: "B", updatedAt: Date.now() },
-];
+type AtisRow = {
+  id: string;
+  icao: string;
+  runway: string;
+  wind: string;
+  qnh: string;
+  info: string;
+  updated_at: string;
+};
+
+const mapFlight = (r: FlightRow): FlightPlan => ({
+  id: r.id,
+  callsign: r.callsign,
+  aircraft: r.aircraft,
+  departure: r.departure,
+  arrival: r.arrival,
+  route: r.route ?? "",
+  squawk: r.squawk ?? "",
+  status: r.status,
+  createdAt: new Date(r.created_at).getTime(),
+});
+
+const mapAtis = (r: AtisRow): AtisEntry => ({
+  id: r.id,
+  icao: r.icao,
+  runway: r.runway,
+  wind: r.wind,
+  qnh: r.qnh,
+  info: r.info,
+  updatedAt: new Date(r.updated_at).getTime(),
+});
 
 export function FlightStoreProvider({ children }: { children: React.ReactNode }) {
-  const [flights, setFlights] = React.useState<FlightPlan[]>(seedFlights);
-  const [atis, setAtis] = React.useState<AtisEntry[]>(seedAtis);
+  const [flights, setFlights] = React.useState<FlightPlan[]>([]);
+  const [atis, setAtis] = React.useState<AtisEntry[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const [{ data: fp }, { data: at }] = await Promise.all([
+        supabase.from("flight_plans").select("*").order("created_at", { ascending: false }),
+        supabase.from("atis").select("*").order("updated_at", { ascending: false }),
+      ]);
+      if (!mounted) return;
+      setFlights((fp ?? []).map((r) => mapFlight(r as FlightRow)));
+      setAtis((at ?? []).map((r) => mapAtis(r as AtisRow)));
+      setLoading(false);
+    })();
+
+    const fpChan = supabase
+      .channel("flight_plans-rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "flight_plans" }, (payload) => {
+        setFlights((prev) => {
+          if (payload.eventType === "INSERT") {
+            const row = mapFlight(payload.new as FlightRow);
+            if (prev.some((x) => x.id === row.id)) return prev;
+            return [row, ...prev];
+          }
+          if (payload.eventType === "UPDATE") {
+            const row = mapFlight(payload.new as FlightRow);
+            return prev.map((x) => (x.id === row.id ? row : x));
+          }
+          if (payload.eventType === "DELETE") {
+            const id = (payload.old as { id: string }).id;
+            return prev.filter((x) => x.id !== id);
+          }
+          return prev;
+        });
+      })
+      .subscribe();
+
+    const atChan = supabase
+      .channel("atis-rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "atis" }, (payload) => {
+        setAtis((prev) => {
+          if (payload.eventType === "INSERT") {
+            const row = mapAtis(payload.new as AtisRow);
+            if (prev.some((x) => x.id === row.id)) return prev;
+            return [row, ...prev];
+          }
+          if (payload.eventType === "UPDATE") {
+            const row = mapAtis(payload.new as AtisRow);
+            return prev.map((x) => (x.id === row.id ? row : x));
+          }
+          if (payload.eventType === "DELETE") {
+            const id = (payload.old as { id: string }).id;
+            return prev.filter((x) => x.id !== id);
+          }
+          return prev;
+        });
+      })
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(fpChan);
+      supabase.removeChannel(atChan);
+    };
+  }, []);
 
   const value: StoreState = {
     flights,
     atis,
-    addFlight: (f) =>
-      setFlights((prev) => [
-        {
-          ...f,
-          status: f.status ?? "parked",
-          id: crypto.randomUUID(),
-          createdAt: Date.now(),
-        },
-        ...prev,
-      ]),
-    updateFlight: (id, patch) =>
-      setFlights((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x))),
-    removeFlight: (id) => setFlights((prev) => prev.filter((x) => x.id !== id)),
-    upsertAtis: (a) =>
-      setAtis((prev) => {
-        const id = a.id ?? crypto.randomUUID();
-        const exists = prev.some((x) => x.id === id);
-        const entry: AtisEntry = { ...a, id, updatedAt: Date.now() };
-        return exists ? prev.map((x) => (x.id === id ? entry : x)) : [entry, ...prev];
-      }),
-    removeAtis: (id) => setAtis((prev) => prev.filter((x) => x.id !== id)),
+    loading,
+    addFlight: async (f) => {
+      await supabase.from("flight_plans").insert({
+        callsign: f.callsign,
+        aircraft: f.aircraft,
+        departure: f.departure,
+        arrival: f.arrival,
+        route: f.route ?? "",
+        squawk: f.squawk ?? "",
+        status: f.status ?? "parked",
+      });
+    },
+    updateFlight: async (id, patch) => {
+      const dbPatch: Partial<Omit<FlightRow, "id" | "created_at">> = {};
+      if (patch.callsign !== undefined) dbPatch.callsign = patch.callsign;
+      if (patch.aircraft !== undefined) dbPatch.aircraft = patch.aircraft;
+      if (patch.departure !== undefined) dbPatch.departure = patch.departure;
+      if (patch.arrival !== undefined) dbPatch.arrival = patch.arrival;
+      if (patch.route !== undefined) dbPatch.route = patch.route;
+      if (patch.squawk !== undefined) dbPatch.squawk = patch.squawk;
+      if (patch.status !== undefined) dbPatch.status = patch.status;
+      await supabase.from("flight_plans").update(dbPatch).eq("id", id);
+    },
+    removeFlight: async (id) => {
+      await supabase.from("flight_plans").delete().eq("id", id);
+    },
+    upsertAtis: async (a) => {
+      if (a.id) {
+        await supabase.from("atis").update({
+          icao: a.icao, runway: a.runway, wind: a.wind, qnh: a.qnh, info: a.info,
+        }).eq("id", a.id);
+      } else {
+        await supabase.from("atis").insert({
+          icao: a.icao, runway: a.runway, wind: a.wind, qnh: a.qnh, info: a.info,
+        });
+      }
+    },
+    removeAtis: async (id) => {
+      await supabase.from("atis").delete().eq("id", id);
+    },
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

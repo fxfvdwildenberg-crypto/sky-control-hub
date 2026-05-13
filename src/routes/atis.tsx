@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/atis")({
   head: () => ({
     meta: [
-      { title: "ATIS Broadcast — SkyControl ATC" },
+      { title: "ATIS Broadcast — ATC365 ATC" },
       { name: "description", content: "Manage Automatic Terminal Information Service broadcasts for airports." },
     ],
   }),
