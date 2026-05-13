@@ -12,7 +12,7 @@ import { FileText, Plane } from "lucide-react";
 export const Route = createFileRoute("/flight-plan")({
   head: () => ({
     meta: [
-      { title: "File Flight Plan — SkyControl ATC" },
+      { title: "File Flight Plan — ATC365 ATC" },
       { name: "description", content: "Submit a new IFR/VFR flight plan to the ATC network." },
     ],
   }),

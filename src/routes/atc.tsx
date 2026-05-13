@@ -10,7 +10,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/atc")({
   head: () => ({
     meta: [
-      { title: "ATC Center — SkyControl" },
+      { title: "ATC Center — ATC365" },
       { name: "description", content: "Manage active flight plans, assign squawk codes, and update flight statuses." },
     ],
   }),

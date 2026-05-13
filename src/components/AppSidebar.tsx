@@ -36,7 +36,7 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold tracking-wide">SKYCONTROL</span>
+              <span className="text-sm font-semibold tracking-wide">ATC365</span>
               <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">ATC Network</span>
             </div>
           )}

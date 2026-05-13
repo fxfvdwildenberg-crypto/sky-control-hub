@@ -6,7 +6,7 @@ import { Plane, Radio, Radar, ArrowRight, Activity } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Live Dashboard — SkyControl ATC" },
+      { title: "Live Dashboard — ATC365 ATC" },
       { name: "description", content: "Real-time overview of active flights, ATIS broadcasts, and network activity." },
     ],
   }),
