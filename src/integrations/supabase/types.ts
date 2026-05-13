@@ -14,7 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      atis: {
+        Row: {
+          icao: string
+          id: string
+          info: string
+          qnh: string
+          runway: string
+          updated_at: string
+          wind: string
+        }
+        Insert: {
+          icao: string
+          id?: string
+          info: string
+          qnh: string
+          runway: string
+          updated_at?: string
+          wind: string
+        }
+        Update: {
+          icao?: string
+          id?: string
+          info?: string
+          qnh?: string
+          runway?: string
+          updated_at?: string
+          wind?: string
+        }
+        Relationships: []
+      }
+      flight_plans: {
+        Row: {
+          aircraft: string
+          arrival: string
+          callsign: string
+          created_at: string
+          departure: string
+          id: string
+          route: string
+          squawk: string
+          status: Database["public"]["Enums"]["flight_status"]
+          updated_at: string
+        }
+        Insert: {
+          aircraft: string
+          arrival: string
+          callsign: string
+          created_at?: string
+          departure: string
+          id?: string
+          route?: string
+          squawk?: string
+          status?: Database["public"]["Enums"]["flight_status"]
+          updated_at?: string
+        }
+        Update: {
+          aircraft?: string
+          arrival?: string
+          callsign?: string
+          created_at?: string
+          departure?: string
+          id?: string
+          route?: string
+          squawk?: string
+          status?: Database["public"]["Enums"]["flight_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +91,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      flight_status: "parked" | "taxi" | "airborne" | "landed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +218,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      flight_status: ["parked", "taxi", "airborne", "landed"],
+    },
   },
 } as const
