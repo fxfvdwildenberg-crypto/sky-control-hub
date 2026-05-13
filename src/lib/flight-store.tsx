@@ -167,7 +167,7 @@ export function FlightStoreProvider({ children }: { children: React.ReactNode })
       });
     },
     updateFlight: async (id, patch) => {
-      const dbPatch: Record<string, unknown> = {};
+      const dbPatch: Partial<Omit<FlightRow, "id" | "created_at">> = {};
       if (patch.callsign !== undefined) dbPatch.callsign = patch.callsign;
       if (patch.aircraft !== undefined) dbPatch.aircraft = patch.aircraft;
       if (patch.departure !== undefined) dbPatch.departure = patch.departure;
