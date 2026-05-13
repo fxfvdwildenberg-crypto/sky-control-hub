@@ -136,6 +136,14 @@
   --sidebar-accent-foreground: oklch(0.96 0.01 230);
   --sidebar-border: oklch(0.25 0.03 240);
   --sidebar-ring: oklch(0.72 0.16 230);
+  --status-parked: oklch(0.7 0.03 235);
+  --status-taxi: oklch(0.78 0.16 85);
+  --status-airborne: oklch(0.72 0.16 230);
+  --status-landed: oklch(0.7 0.18 160);
+  --gradient-primary: linear-gradient(135deg, oklch(0.72 0.16 230), oklch(0.6 0.2 250));
+  --gradient-radar: radial-gradient(circle at 50% 50%, oklch(0.32 0.07 230 / 0.6), transparent 70%);
+  --shadow-glow: 0 0 30px oklch(0.72 0.16 230 / 0.25);
+  --shadow-card: 0 4px 20px oklch(0.08 0.02 240 / 0.5);
 }
 
 @layer base {
