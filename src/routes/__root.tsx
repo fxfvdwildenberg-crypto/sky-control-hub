@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { FlightStoreProvider } from "@/lib/flight-store";
+import { ThemeProvider } from "@/lib/theme";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
