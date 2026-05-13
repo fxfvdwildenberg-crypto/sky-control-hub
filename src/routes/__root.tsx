@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { FlightStoreProvider } from "@/lib/flight-store";
+import { ThemeProvider } from "@/lib/theme";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -86,7 +88,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <HeadContent />
       </head>
@@ -103,29 +105,32 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <FlightStoreProvider>
-        <SidebarProvider>
-          <div className="flex min-h-screen w-full bg-background">
-            <AppSidebar />
-            <div className="flex flex-1 flex-col">
-              <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
-                <SidebarTrigger />
-                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">
-                  <span className="h-1.5 w-1.5 rounded-full bg-status-landed animate-pulse" />
-                  Live · ATC Network
-                </div>
-                <div className="ml-auto flex items-center gap-3 text-xs font-mono text-muted-foreground">
-                  <LiveClock />
-                </div>
-              </header>
-              <main className="flex-1">
-                <Outlet />
-              </main>
+      <ThemeProvider>
+        <FlightStoreProvider>
+          <SidebarProvider>
+            <div className="flex min-h-screen w-full bg-background">
+              <AppSidebar />
+              <div className="flex flex-1 flex-col">
+                <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
+                  <SidebarTrigger />
+                  <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full bg-status-landed animate-pulse" />
+                    Live · ATC Network
+                  </div>
+                  <div className="ml-auto flex items-center gap-3 text-xs font-mono text-muted-foreground">
+                    <LiveClock />
+                    <ThemeToggle />
+                  </div>
+                </header>
+                <main className="flex-1">
+                  <Outlet />
+                </main>
+              </div>
             </div>
-          </div>
-          <Toaster />
-        </SidebarProvider>
-      </FlightStoreProvider>
+            <Toaster />
+          </SidebarProvider>
+        </FlightStoreProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
