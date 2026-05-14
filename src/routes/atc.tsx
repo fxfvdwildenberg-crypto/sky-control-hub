@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Radar, Search, RefreshCw, Trash2, Shuffle, Plane } from "lucide-react";
 import { toast } from "sonner";
+import { RoleGuard } from "@/components/RoleGuard";
 
 export const Route = createFileRoute("/atc")({
   head: () => ({
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/atc")({
       { name: "description", content: "Manage active flight plans, assign squawk codes, and update flight statuses." },
     ],
   }),
-  component: AtcPage,
+  component: () => <RoleGuard><AtcPage /></RoleGuard>,
 });
 
 function AtcPage() {

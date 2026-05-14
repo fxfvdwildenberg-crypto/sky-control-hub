@@ -1,5 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Plane, LayoutDashboard, Radio, FileText, Radar } from "lucide-react";
+import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { logout } from "@/lib/auth.functions";
+import { useCurrentUser } from "@/lib/use-current-user";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -64,20 +69,56 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
-        {!collapsed ? (
-          <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground">
-            <span className="relative inline-flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-status-landed opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-status-landed" />
-            </span>
-            <span className="font-mono">NETWORK ONLINE</span>
-          </div>
-        ) : (
-          <div className="flex justify-center py-2">
-            <span className="h-2 w-2 rounded-full bg-status-landed" />
-          </div>
-        )}
+        <UserBlock collapsed={collapsed} />
       </SidebarFooter>
     </Sidebar>
+  );
+}
+
+function UserBlock({ collapsed }: { collapsed: boolean }) {
+  const { data: user, isLoading } = useCurrentUser();
+  const logoutFn = useServerFn(logout);
+  const qc = useQueryClient();
+
+  const handleLogout = async () => {
+    await logoutFn();
+    qc.invalidateQueries({ queryKey: ["current-user"] });
+  };
+
+  if (collapsed) {
+    return (
+      <div className="flex justify-center py-2">
+        <span className={`h-2 w-2 rounded-full ${user?.hasAtcRole ? "bg-status-landed" : "bg-muted-foreground"}`} />
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return <div className="px-2 py-1.5 text-xs text-muted-foreground font-mono">…</div>;
+  }
+
+  if (!user) {
+    return (
+      <Link to="/login" className="block px-1 py-1">
+        <Button size="sm" variant="outline" className="w-full gap-2">
+          <LogIn className="h-3.5 w-3.5" /> Sign in
+        </Button>
+      </Link>
+    );
+  }
+
+  return (
+    <div className="space-y-1 px-1 py-1">
+      <div className="flex items-center gap-2 px-1 text-xs">
+        <span className={`h-2 w-2 rounded-full ${user.hasAtcRole ? "bg-status-landed" : "bg-destructive"}`} />
+        <span className="truncate font-mono">{user.username}</span>
+      </div>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground px-1">
+        {user.hasAtcRole ? "ATC verified" : "No ATC role"}
+      </div>
+      <Button size="sm" variant="ghost" className="w-full justify-start gap-2 h-7" onClick={handleLogout}>
+        <LogOut className="h-3.5 w-3.5" /> Sign out
+      </Button>
+    </div>
   );
 }

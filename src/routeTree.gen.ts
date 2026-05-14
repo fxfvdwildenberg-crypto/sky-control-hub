@@ -9,11 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as FlightPlanRouteImport } from './routes/flight-plan'
 import { Route as AtisRouteImport } from './routes/atis'
 import { Route as AtcRouteImport } from './routes/atc'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicDiscordLoginRouteImport } from './routes/api/public/discord/login'
+import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/public/discord/callback'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FlightPlanRoute = FlightPlanRouteImport.update({
   id: '/flight-plan',
   path: '/flight-plan',
@@ -34,18 +42,35 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicDiscordLoginRoute = ApiPublicDiscordLoginRouteImport.update({
+  id: '/api/public/discord/login',
+  path: '/api/public/discord/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDiscordCallbackRoute =
+  ApiPublicDiscordCallbackRouteImport.update({
+    id: '/api/public/discord/callback',
+    path: '/api/public/discord/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
+  '/login': typeof LoginRoute
+  '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
+  '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
+  '/login': typeof LoginRoute
+  '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
+  '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +78,38 @@ export interface FileRoutesById {
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
+  '/login': typeof LoginRoute
+  '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
+  '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/atc' | '/atis' | '/flight-plan'
+  fullPaths:
+    | '/'
+    | '/atc'
+    | '/atis'
+    | '/flight-plan'
+    | '/login'
+    | '/api/public/discord/callback'
+    | '/api/public/discord/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/atc' | '/atis' | '/flight-plan'
-  id: '__root__' | '/' | '/atc' | '/atis' | '/flight-plan'
+  to:
+    | '/'
+    | '/atc'
+    | '/atis'
+    | '/flight-plan'
+    | '/login'
+    | '/api/public/discord/callback'
+    | '/api/public/discord/login'
+  id:
+    | '__root__'
+    | '/'
+    | '/atc'
+    | '/atis'
+    | '/flight-plan'
+    | '/login'
+    | '/api/public/discord/callback'
+    | '/api/public/discord/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +117,20 @@ export interface RootRouteChildren {
   AtcRoute: typeof AtcRoute
   AtisRoute: typeof AtisRoute
   FlightPlanRoute: typeof FlightPlanRoute
+  LoginRoute: typeof LoginRoute
+  ApiPublicDiscordCallbackRoute: typeof ApiPublicDiscordCallbackRoute
+  ApiPublicDiscordLoginRoute: typeof ApiPublicDiscordLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/flight-plan': {
       id: '/flight-plan'
       path: '/flight-plan'
@@ -99,6 +159,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/discord/login': {
+      id: '/api/public/discord/login'
+      path: '/api/public/discord/login'
+      fullPath: '/api/public/discord/login'
+      preLoaderRoute: typeof ApiPublicDiscordLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/discord/callback': {
+      id: '/api/public/discord/callback'
+      path: '/api/public/discord/callback'
+      fullPath: '/api/public/discord/callback'
+      preLoaderRoute: typeof ApiPublicDiscordCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +181,9 @@ const rootRouteChildren: RootRouteChildren = {
   AtcRoute: AtcRoute,
   AtisRoute: AtisRoute,
   FlightPlanRoute: FlightPlanRoute,
+  LoginRoute: LoginRoute,
+  ApiPublicDiscordCallbackRoute: ApiPublicDiscordCallbackRoute,
+  ApiPublicDiscordLoginRoute: ApiPublicDiscordLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Radio, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { RoleGuard } from "@/components/RoleGuard";
 
 export const Route = createFileRoute("/atis")({
   head: () => ({
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/atis")({
       { name: "description", content: "Manage Automatic Terminal Information Service broadcasts for airports." },
     ],
   }),
-  component: AtisPage,
+  component: () => <RoleGuard><AtisPage /></RoleGuard>,
 });
 
 const schema = z.object({
