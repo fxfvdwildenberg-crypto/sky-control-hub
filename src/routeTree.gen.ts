@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VoiceRouteImport } from './routes/voice'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FlightPlanRouteImport } from './routes/flight-plan'
 import { Route as AtisRouteImport } from './routes/atis'
@@ -17,6 +18,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicDiscordLoginRouteImport } from './routes/api/public/discord/login'
 import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/public/discord/callback'
 
+const VoiceRoute = VoiceRouteImport.update({
+  id: '/voice',
+  path: '/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
+  '/voice': typeof VoiceRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
+  '/voice': typeof VoiceRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
+  '/voice': typeof VoiceRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/atis'
     | '/flight-plan'
     | '/login'
+    | '/voice'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
   fileRoutesByTo: FileRoutesByTo
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/atis'
     | '/flight-plan'
     | '/login'
+    | '/voice'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
   id:
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/atis'
     | '/flight-plan'
     | '/login'
+    | '/voice'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
   fileRoutesById: FileRoutesById
@@ -118,12 +130,20 @@ export interface RootRouteChildren {
   AtisRoute: typeof AtisRoute
   FlightPlanRoute: typeof FlightPlanRoute
   LoginRoute: typeof LoginRoute
+  VoiceRoute: typeof VoiceRoute
   ApiPublicDiscordCallbackRoute: typeof ApiPublicDiscordCallbackRoute
   ApiPublicDiscordLoginRoute: typeof ApiPublicDiscordLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/voice': {
+      id: '/voice'
+      path: '/voice'
+      fullPath: '/voice'
+      preLoaderRoute: typeof VoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -182,9 +202,20 @@ const rootRouteChildren: RootRouteChildren = {
   AtisRoute: AtisRoute,
   FlightPlanRoute: FlightPlanRoute,
   LoginRoute: LoginRoute,
+  VoiceRoute: VoiceRoute,
   ApiPublicDiscordCallbackRoute: ApiPublicDiscordCallbackRoute,
   ApiPublicDiscordLoginRoute: ApiPublicDiscordLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
