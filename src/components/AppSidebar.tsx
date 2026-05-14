@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut } from "lucide-react";
+import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { logout } from "@/lib/auth.functions";
@@ -24,6 +24,7 @@ const items = [
   { title: "Flight Plan", url: "/flight-plan", icon: FileText },
   { title: "ATC Center", url: "/atc", icon: Radar },
   { title: "ATIS", url: "/atis", icon: Radio },
+  { title: "Voice", url: "/voice", icon: Headphones },
 ];
 
 export function AppSidebar() {
