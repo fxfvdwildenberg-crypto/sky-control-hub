@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      atc_claims: {
+        Row: {
+          channel_id: string
+          channel_name: string
+          claimed_at: string
+          discord_id: string
+          id: string
+          username: string
+        }
+        Insert: {
+          channel_id: string
+          channel_name: string
+          claimed_at?: string
+          discord_id: string
+          id?: string
+          username: string
+        }
+        Update: {
+          channel_id?: string
+          channel_name?: string
+          claimed_at?: string
+          discord_id?: string
+          id?: string
+          username?: string
+        }
+        Relationships: []
+      }
       atis: {
         Row: {
           icao: string
