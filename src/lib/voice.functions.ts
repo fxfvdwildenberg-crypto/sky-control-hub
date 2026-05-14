@@ -20,11 +20,7 @@ type Claim = {
 };
 
 function admin() {
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } },
-  );
+  return supabaseAdmin;
 }
 
 export const listVoiceChannels = createServerFn({ method: "GET" }).handler(
