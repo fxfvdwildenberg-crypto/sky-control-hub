@@ -74,3 +74,51 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
+
+function UserBlock({ collapsed }: { collapsed: boolean }) {
+  const { data: user, isLoading } = useCurrentUser();
+  const logoutFn = useServerFn(logout);
+  const qc = useQueryClient();
+
+  const handleLogout = async () => {
+    await logoutFn();
+    qc.invalidateQueries({ queryKey: ["current-user"] });
+  };
+
+  if (collapsed) {
+    return (
+      <div className="flex justify-center py-2">
+        <span className={`h-2 w-2 rounded-full ${user?.hasAtcRole ? "bg-status-landed" : "bg-muted-foreground"}`} />
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return <div className="px-2 py-1.5 text-xs text-muted-foreground font-mono">…</div>;
+  }
+
+  if (!user) {
+    return (
+      <Link to="/login" className="block px-1 py-1">
+        <Button size="sm" variant="outline" className="w-full gap-2">
+          <LogIn className="h-3.5 w-3.5" /> Sign in
+        </Button>
+      </Link>
+    );
+  }
+
+  return (
+    <div className="space-y-1 px-1 py-1">
+      <div className="flex items-center gap-2 px-1 text-xs">
+        <span className={`h-2 w-2 rounded-full ${user.hasAtcRole ? "bg-status-landed" : "bg-destructive"}`} />
+        <span className="truncate font-mono">{user.username}</span>
+      </div>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground px-1">
+        {user.hasAtcRole ? "ATC verified" : "No ATC role"}
+      </div>
+      <Button size="sm" variant="ghost" className="w-full justify-start gap-2 h-7" onClick={handleLogout}>
+        <LogOut className="h-3.5 w-3.5" /> Sign out
+      </Button>
+    </div>
+  );
+}
