@@ -24,6 +24,7 @@ const items = [
   { title: "Flight Plan", url: "/flight-plan", icon: FileText },
   { title: "ATC Center", url: "/atc", icon: Radar },
   { title: "ATIS", url: "/atis", icon: Radio },
+  { title: "Voice", url: "/voice", icon: Headphones },
 ];
 
 export function AppSidebar() {
