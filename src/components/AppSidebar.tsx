@@ -1,5 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Plane, LayoutDashboard, Radio, FileText, Radar } from "lucide-react";
+import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { logout } from "@/lib/auth.functions";
+import { useCurrentUser } from "@/lib/use-current-user";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -64,19 +69,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
-        {!collapsed ? (
-          <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground">
-            <span className="relative inline-flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-status-landed opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-status-landed" />
-            </span>
-            <span className="font-mono">NETWORK ONLINE</span>
-          </div>
-        ) : (
-          <div className="flex justify-center py-2">
-            <span className="h-2 w-2 rounded-full bg-status-landed" />
-          </div>
-        )}
+        <UserBlock collapsed={collapsed} />
       </SidebarFooter>
     </Sidebar>
   );
