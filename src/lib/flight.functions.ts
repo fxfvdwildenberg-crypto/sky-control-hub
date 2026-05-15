@@ -64,7 +64,7 @@ export const updateOwnFlightPlan = createServerFn({ method: "POST" })
     if (data.status) patch.status = data.status;
     if (data.squawk) patch.squawk = data.squawk;
     if (Object.keys(patch).length === 0) return { ok: true };
-    const { error } = await supabaseAdmin.from("flight_plans").update(patch).eq("id", data.id);
+    const { error } = await supabaseAdmin.from("flight_plans").update(patch as never).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -101,7 +101,7 @@ export const decideFlightPlan = createServerFn({ method: "POST" })
       approval_status: data.decision,
       approved_at: data.decision === "approved" ? new Date().toISOString() : null,
     };
-    const { error } = await supabaseAdmin.from("flight_plans").update(patch).eq("id", data.id);
+    const { error } = await supabaseAdmin.from("flight_plans").update(patch as never).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

@@ -190,7 +190,7 @@ export function FlightStoreProvider({ children }: { children: React.ReactNode })
       if (patch.cruiseLevel !== undefined) dbPatch.cruise_level = patch.cruiseLevel;
       if (patch.gate !== undefined) dbPatch.gate = patch.gate;
       if (patch.approvalStatus !== undefined) dbPatch.approval_status = patch.approvalStatus;
-      await supabase.from("flight_plans").update(dbPatch).eq("id", id);
+      await supabase.from("flight_plans").update(dbPatch as never).eq("id", id);
     },
     removeFlight: async (id) => {
       await supabase.from("flight_plans").delete().eq("id", id);
