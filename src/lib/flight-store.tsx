@@ -2,6 +2,8 @@ import * as React from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export type FlightStatus = "parked" | "taxi" | "airborne" | "landed";
+export type ApprovalStatus = "pending" | "approved" | "denied";
+export type FlightRule = "IFR" | "VFR";
 
 export interface FlightPlan {
   id: string;
@@ -12,13 +14,20 @@ export interface FlightPlan {
   route: string;
   squawk: string;
   status: FlightStatus;
+  flightRule: FlightRule;
+  cruiseLevel: string;
+  gate: string;
+  filerDiscordId: string | null;
+  filerUsername: string | null;
+  approvalStatus: ApprovalStatus;
   createdAt: number;
 }
 
 export interface AtisEntry {
   id: string;
   icao: string;
-  runway: string;
+  departureRunways: string;
+  arrivalRunways: string;
   wind: string;
   qnh: string;
   info: string;
@@ -29,7 +38,6 @@ interface StoreState {
   flights: FlightPlan[];
   atis: AtisEntry[];
   loading: boolean;
-  addFlight: (f: Omit<FlightPlan, "id" | "createdAt" | "status"> & { status?: FlightStatus }) => Promise<void>;
   updateFlight: (id: string, patch: Partial<FlightPlan>) => Promise<void>;
   removeFlight: (id: string) => Promise<void>;
   upsertAtis: (a: Omit<AtisEntry, "id" | "updatedAt"> & { id?: string }) => Promise<void>;
@@ -47,13 +55,20 @@ type FlightRow = {
   route: string;
   squawk: string;
   status: FlightStatus;
+  flight_rule: string;
+  cruise_level: string;
+  gate: string;
+  filer_discord_id: string | null;
+  filer_username: string | null;
+  approval_status: string;
   created_at: string;
 };
 
 type AtisRow = {
   id: string;
   icao: string;
-  runway: string;
+  departure_runways: string;
+  arrival_runways: string;
   wind: string;
   qnh: string;
   info: string;
@@ -69,13 +84,20 @@ const mapFlight = (r: FlightRow): FlightPlan => ({
   route: r.route ?? "",
   squawk: r.squawk ?? "",
   status: r.status,
+  flightRule: (r.flight_rule as FlightRule) ?? "IFR",
+  cruiseLevel: r.cruise_level ?? "",
+  gate: r.gate ?? "",
+  filerDiscordId: r.filer_discord_id,
+  filerUsername: r.filer_username,
+  approvalStatus: (r.approval_status as ApprovalStatus) ?? "pending",
   createdAt: new Date(r.created_at).getTime(),
 });
 
 const mapAtis = (r: AtisRow): AtisEntry => ({
   id: r.id,
   icao: r.icao,
-  runway: r.runway,
+  departureRunways: r.departure_runways ?? "",
+  arrivalRunways: r.arrival_runways ?? "",
   wind: r.wind,
   qnh: r.qnh,
   info: r.info,
@@ -95,8 +117,8 @@ export function FlightStoreProvider({ children }: { children: React.ReactNode })
         supabase.from("atis").select("*").order("updated_at", { ascending: false }),
       ]);
       if (!mounted) return;
-      setFlights((fp ?? []).map((r) => mapFlight(r as FlightRow)));
-      setAtis((at ?? []).map((r) => mapAtis(r as AtisRow)));
+      setFlights((fp ?? []).map((r) => mapFlight(r as unknown as FlightRow)));
+      setAtis((at ?? []).map((r) => mapAtis(r as unknown as AtisRow)));
       setLoading(false);
     })();
 
@@ -105,12 +127,12 @@ export function FlightStoreProvider({ children }: { children: React.ReactNode })
       .on("postgres_changes", { event: "*", schema: "public", table: "flight_plans" }, (payload) => {
         setFlights((prev) => {
           if (payload.eventType === "INSERT") {
-            const row = mapFlight(payload.new as FlightRow);
+            const row = mapFlight(payload.new as unknown as FlightRow);
             if (prev.some((x) => x.id === row.id)) return prev;
             return [row, ...prev];
           }
           if (payload.eventType === "UPDATE") {
-            const row = mapFlight(payload.new as FlightRow);
+            const row = mapFlight(payload.new as unknown as FlightRow);
             return prev.map((x) => (x.id === row.id ? row : x));
           }
           if (payload.eventType === "DELETE") {
@@ -127,12 +149,12 @@ export function FlightStoreProvider({ children }: { children: React.ReactNode })
       .on("postgres_changes", { event: "*", schema: "public", table: "atis" }, (payload) => {
         setAtis((prev) => {
           if (payload.eventType === "INSERT") {
-            const row = mapAtis(payload.new as AtisRow);
+            const row = mapAtis(payload.new as unknown as AtisRow);
             if (prev.some((x) => x.id === row.id)) return prev;
             return [row, ...prev];
           }
           if (payload.eventType === "UPDATE") {
-            const row = mapAtis(payload.new as AtisRow);
+            const row = mapAtis(payload.new as unknown as AtisRow);
             return prev.map((x) => (x.id === row.id ? row : x));
           }
           if (payload.eventType === "DELETE") {
@@ -155,19 +177,8 @@ export function FlightStoreProvider({ children }: { children: React.ReactNode })
     flights,
     atis,
     loading,
-    addFlight: async (f) => {
-      await supabase.from("flight_plans").insert({
-        callsign: f.callsign,
-        aircraft: f.aircraft,
-        departure: f.departure,
-        arrival: f.arrival,
-        route: f.route ?? "",
-        squawk: f.squawk ?? "",
-        status: f.status ?? "parked",
-      });
-    },
     updateFlight: async (id, patch) => {
-      const dbPatch: Partial<Omit<FlightRow, "id" | "created_at">> = {};
+      const dbPatch: Record<string, unknown> = {};
       if (patch.callsign !== undefined) dbPatch.callsign = patch.callsign;
       if (patch.aircraft !== undefined) dbPatch.aircraft = patch.aircraft;
       if (patch.departure !== undefined) dbPatch.departure = patch.departure;
@@ -175,6 +186,10 @@ export function FlightStoreProvider({ children }: { children: React.ReactNode })
       if (patch.route !== undefined) dbPatch.route = patch.route;
       if (patch.squawk !== undefined) dbPatch.squawk = patch.squawk;
       if (patch.status !== undefined) dbPatch.status = patch.status;
+      if (patch.flightRule !== undefined) dbPatch.flight_rule = patch.flightRule;
+      if (patch.cruiseLevel !== undefined) dbPatch.cruise_level = patch.cruiseLevel;
+      if (patch.gate !== undefined) dbPatch.gate = patch.gate;
+      if (patch.approvalStatus !== undefined) dbPatch.approval_status = patch.approvalStatus;
       await supabase.from("flight_plans").update(dbPatch).eq("id", id);
     },
     removeFlight: async (id) => {
@@ -183,11 +198,17 @@ export function FlightStoreProvider({ children }: { children: React.ReactNode })
     upsertAtis: async (a) => {
       if (a.id) {
         await supabase.from("atis").update({
-          icao: a.icao, runway: a.runway, wind: a.wind, qnh: a.qnh, info: a.info,
+          icao: a.icao,
+          departure_runways: a.departureRunways,
+          arrival_runways: a.arrivalRunways,
+          wind: a.wind, qnh: a.qnh, info: a.info,
         }).eq("id", a.id);
       } else {
         await supabase.from("atis").insert({
-          icao: a.icao, runway: a.runway, wind: a.wind, qnh: a.qnh, info: a.info,
+          icao: a.icao,
+          departure_runways: a.departureRunways,
+          arrival_runways: a.arrivalRunways,
+          wind: a.wind, qnh: a.qnh, info: a.info,
         });
       }
     },
@@ -210,4 +231,10 @@ export const STATUS_META: Record<FlightStatus, { label: string; color: string; d
   taxi: { label: "Taxi", color: "text-status-taxi border-status-taxi/40 bg-status-taxi/10", dot: "bg-status-taxi" },
   airborne: { label: "Airborne", color: "text-status-airborne border-status-airborne/40 bg-status-airborne/10", dot: "bg-status-airborne" },
   landed: { label: "Landed", color: "text-status-landed border-status-landed/40 bg-status-landed/10", dot: "bg-status-landed" },
+};
+
+export const APPROVAL_META: Record<ApprovalStatus, { label: string; className: string }> = {
+  pending: { label: "Pending", className: "text-status-taxi border-status-taxi/40 bg-status-taxi/10" },
+  approved: { label: "Approved", className: "text-status-landed border-status-landed/40 bg-status-landed/10" },
+  denied: { label: "Denied", className: "text-destructive border-destructive/40 bg-destructive/10" },
 };

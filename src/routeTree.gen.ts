@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoiceRouteImport } from './routes/voice'
+import { Route as MyFlightsRouteImport } from './routes/my-flights'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FlightPlanRouteImport } from './routes/flight-plan'
 import { Route as AtisRouteImport } from './routes/atis'
@@ -21,6 +22,11 @@ import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/publi
 const VoiceRoute = VoiceRouteImport.update({
   id: '/voice',
   path: '/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyFlightsRoute = MyFlightsRouteImport.update({
+  id: '/my-flights',
+  path: '/my-flights',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
+  '/my-flights': typeof MyFlightsRoute
   '/voice': typeof VoiceRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
+  '/my-flights': typeof MyFlightsRoute
   '/voice': typeof VoiceRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/atis': typeof AtisRoute
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
+  '/my-flights': typeof MyFlightsRoute
   '/voice': typeof VoiceRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/atis'
     | '/flight-plan'
     | '/login'
+    | '/my-flights'
     | '/voice'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/atis'
     | '/flight-plan'
     | '/login'
+    | '/my-flights'
     | '/voice'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/atis'
     | '/flight-plan'
     | '/login'
+    | '/my-flights'
     | '/voice'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   AtisRoute: typeof AtisRoute
   FlightPlanRoute: typeof FlightPlanRoute
   LoginRoute: typeof LoginRoute
+  MyFlightsRoute: typeof MyFlightsRoute
   VoiceRoute: typeof VoiceRoute
   ApiPublicDiscordCallbackRoute: typeof ApiPublicDiscordCallbackRoute
   ApiPublicDiscordLoginRoute: typeof ApiPublicDiscordLoginRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/voice'
       fullPath: '/voice'
       preLoaderRoute: typeof VoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-flights': {
+      id: '/my-flights'
+      path: '/my-flights'
+      fullPath: '/my-flights'
+      preLoaderRoute: typeof MyFlightsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   AtisRoute: AtisRoute,
   FlightPlanRoute: FlightPlanRoute,
   LoginRoute: LoginRoute,
+  MyFlightsRoute: MyFlightsRoute,
   VoiceRoute: VoiceRoute,
   ApiPublicDiscordCallbackRoute: ApiPublicDiscordCallbackRoute,
   ApiPublicDiscordLoginRoute: ApiPublicDiscordLoginRoute,
