@@ -21,7 +21,8 @@ import {
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Flight Plan", url: "/flight-plan", icon: FileText },
+  { title: "File Plan", url: "/flight-plan", icon: FileText },
+  { title: "My Flights", url: "/my-flights", icon: Plane },
   { title: "ATC Center", url: "/atc", icon: Radar },
   { title: "ATIS", url: "/atis", icon: Radio },
   { title: "Voice", url: "/voice", icon: Headphones },

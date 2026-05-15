@@ -43,29 +43,32 @@ export type Database = {
       }
       atis: {
         Row: {
+          arrival_runways: string
+          departure_runways: string
           icao: string
           id: string
           info: string
           qnh: string
-          runway: string
           updated_at: string
           wind: string
         }
         Insert: {
+          arrival_runways?: string
+          departure_runways?: string
           icao: string
           id?: string
           info: string
           qnh: string
-          runway: string
           updated_at?: string
           wind: string
         }
         Update: {
+          arrival_runways?: string
+          departure_runways?: string
           icao?: string
           id?: string
           info?: string
           qnh?: string
-          runway?: string
           updated_at?: string
           wind?: string
         }
@@ -74,10 +77,17 @@ export type Database = {
       flight_plans: {
         Row: {
           aircraft: string
+          approval_status: string
+          approved_at: string | null
           arrival: string
           callsign: string
           created_at: string
+          cruise_level: string
           departure: string
+          filer_discord_id: string | null
+          filer_username: string | null
+          flight_rule: string
+          gate: string
           id: string
           route: string
           squawk: string
@@ -86,10 +96,17 @@ export type Database = {
         }
         Insert: {
           aircraft: string
+          approval_status?: string
+          approved_at?: string | null
           arrival: string
           callsign: string
           created_at?: string
+          cruise_level?: string
           departure: string
+          filer_discord_id?: string | null
+          filer_username?: string | null
+          flight_rule?: string
+          gate?: string
           id?: string
           route?: string
           squawk?: string
@@ -98,10 +115,17 @@ export type Database = {
         }
         Update: {
           aircraft?: string
+          approval_status?: string
+          approved_at?: string | null
           arrival?: string
           callsign?: string
           created_at?: string
+          cruise_level?: string
           departure?: string
+          filer_discord_id?: string | null
+          filer_username?: string | null
+          flight_rule?: string
+          gate?: string
           id?: string
           route?: string
           squawk?: string

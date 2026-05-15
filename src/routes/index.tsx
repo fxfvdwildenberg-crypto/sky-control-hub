@@ -101,7 +101,7 @@ function Dashboard() {
                     </span>
                   </div>
                   <div className="mt-3 grid grid-cols-3 gap-2 font-mono text-xs">
-                    <div><div className="text-[10px] uppercase text-muted-foreground">RWY</div>{a.runway}</div>
+                    <div><div className="text-[10px] uppercase text-muted-foreground">RWY</div>{a.departureRunways}/{a.arrivalRunways}</div>
                     <div><div className="text-[10px] uppercase text-muted-foreground">Wind</div>{a.wind}</div>
                     <div><div className="text-[10px] uppercase text-muted-foreground">QNH</div>{a.qnh}</div>
                   </div>

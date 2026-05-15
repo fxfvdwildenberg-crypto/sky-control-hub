@@ -12,7 +12,7 @@ import { RoleGuard } from "@/components/RoleGuard";
 export const Route = createFileRoute("/atis")({
   head: () => ({
     meta: [
-      { title: "ATIS Broadcast — ATC365 ATC" },
+      { title: "ATIS Broadcast — ATC365" },
       { name: "description", content: "Manage Automatic Terminal Information Service broadcasts for airports." },
     ],
   }),
@@ -21,7 +21,8 @@ export const Route = createFileRoute("/atis")({
 
 const schema = z.object({
   icao: z.string().trim().regex(/^[A-Z]{4}$/, "4-letter ICAO"),
-  runway: z.string().trim().regex(/^[0-3]?[0-9][LCR]?$/, "e.g. 27R"),
+  departureRunways: z.string().trim().min(1, "Required").max(10, "Max 10 chars"),
+  arrivalRunways: z.string().trim().min(1, "Required").max(10, "Max 10 chars"),
   wind: z.string().trim().regex(/^\d{3}\/\d{1,3}KT$/, "e.g. 260/12KT"),
   qnh: z.string().trim().regex(/^\d{4}$/, "4 digits"),
   info: z.string().trim().regex(/^[A-Z]$/, "Single letter"),
@@ -29,7 +30,7 @@ const schema = z.object({
 
 function AtisPage() {
   const { atis, upsertAtis, removeAtis } = useFlightStore();
-  const [form, setForm] = useState({ icao: "", runway: "", wind: "", qnh: "", info: "" });
+  const [form, setForm] = useState({ icao: "", departureRunways: "", arrivalRunways: "", wind: "", qnh: "", info: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const set = (k: keyof typeof form, v: string) => setForm((s) => ({ ...s, [k]: v.toUpperCase() }));
@@ -46,7 +47,7 @@ function AtisPage() {
     setErrors({});
     upsertAtis(result.data);
     toast.success(`ATIS ${result.data.icao} INFO ${result.data.info} broadcast`);
-    setForm({ icao: "", runway: "", wind: "", qnh: "", info: "" });
+    setForm({ icao: "", departureRunways: "", arrivalRunways: "", wind: "", qnh: "", info: "" });
   };
 
   return (
@@ -57,7 +58,7 @@ function AtisPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">ATIS Broadcast</h1>
-          <p className="text-sm text-muted-foreground">Automatic Terminal Information Service</p>
+          <p className="text-sm text-muted-foreground">Higher info letters auto-replace older ones for the same airport</p>
         </div>
       </header>
 
@@ -69,18 +70,23 @@ function AtisPage() {
             <Input value={form.icao} onChange={(e) => set("icao", e.target.value)} maxLength={4} placeholder="EGLL" className="font-mono uppercase tracking-wider" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Runway" error={errors.runway}>
-              <Input value={form.runway} onChange={(e) => set("runway", e.target.value)} maxLength={3} placeholder="27R" className="font-mono uppercase" />
+            <Field label="Dep Runways" error={errors.departureRunways}>
+              <Input value={form.departureRunways} onChange={(e) => set("departureRunways", e.target.value)} maxLength={10} placeholder="27R/09L" className="font-mono uppercase" />
             </Field>
+            <Field label="Arr Runways" error={errors.arrivalRunways}>
+              <Input value={form.arrivalRunways} onChange={(e) => set("arrivalRunways", e.target.value)} maxLength={10} placeholder="27L" className="font-mono uppercase" />
+            </Field>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
             <Field label="Info Letter" error={errors.info}>
               <Input value={form.info} onChange={(e) => set("info", e.target.value)} maxLength={1} placeholder="C" className="font-mono uppercase tracking-widest text-center" />
+            </Field>
+            <Field label="QNH" error={errors.qnh}>
+              <Input value={form.qnh} onChange={(e) => set("qnh", e.target.value)} maxLength={4} placeholder="1013" className="font-mono" />
             </Field>
           </div>
           <Field label="Wind" error={errors.wind}>
             <Input value={form.wind} onChange={(e) => set("wind", e.target.value)} placeholder="260/12KT" className="font-mono uppercase" />
-          </Field>
-          <Field label="QNH" error={errors.qnh}>
-            <Input value={form.qnh} onChange={(e) => set("qnh", e.target.value)} maxLength={4} placeholder="1013" className="font-mono" />
           </Field>
 
           <Button type="submit" className="w-full gap-2"><Plus className="h-4 w-4" /> Broadcast ATIS</Button>
@@ -110,8 +116,9 @@ function AtisPage() {
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
-                <div className="relative mt-4 grid grid-cols-3 gap-3 font-mono">
-                  <Stat label="Runway" value={a.runway} />
+                <div className="relative mt-4 grid grid-cols-2 gap-3 font-mono">
+                  <Stat label="Dep RWY" value={a.departureRunways} />
+                  <Stat label="Arr RWY" value={a.arrivalRunways} />
                   <Stat label="Wind" value={a.wind} />
                   <Stat label="QNH" value={a.qnh} />
                 </div>

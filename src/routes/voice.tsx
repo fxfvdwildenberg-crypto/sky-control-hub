@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Headphones, Volume2, Users, Radar, RefreshCw, X, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import { RoleGuard } from "@/components/RoleGuard";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { listVoiceChannels, claimAtcSpot, releaseAtcSpot } from "@/lib/voice.functions";
@@ -15,7 +14,7 @@ export const Route = createFileRoute("/voice")({
       { name: "description", content: "Browse Discord voice channels and claim an ATC position." },
     ],
   }),
-  component: () => <RoleGuard><VoicePage /></RoleGuard>,
+  component: VoicePage,
 });
 
 function VoicePage() {

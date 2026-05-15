@@ -1,53 +1,55 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { useFlightStore, type FlightStatus } from "@/lib/flight-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { FileText, Plane } from "lucide-react";
+import { fileFlightPlan } from "@/lib/flight.functions";
+import { useCurrentUser } from "@/lib/use-current-user";
 
 export const Route = createFileRoute("/flight-plan")({
   head: () => ({
     meta: [
-      { title: "File Flight Plan — ATC365 ATC" },
-      { name: "description", content: "Submit a new IFR/VFR flight plan to the ATC network." },
+      { title: "File Flight Plan — ATC365" },
+      { name: "description", content: "Submit a new IFR/VFR flight plan to the ATC365 network." },
     ],
   }),
   component: FlightPlanPage,
 });
 
-const icao = z.string().trim().regex(/^[A-Z]{4}$/, "Must be a 4-letter ICAO");
+const icao = z.string().trim().regex(/^[A-Z]{4}$/, "4-letter ICAO");
 const schema = z.object({
-  callsign: z.string().trim().min(3, "Min 3 chars").max(8).regex(/^[A-Z0-9]+$/, "Uppercase A-Z, 0-9"),
-  aircraft: z.string().trim().min(2).max(8).regex(/^[A-Z0-9]+$/, "Uppercase A-Z, 0-9"),
+  callsign: z.string().trim().min(2).max(8).regex(/^[A-Z0-9]+$/, "A-Z, 0-9"),
+  aircraft: z.string().trim().min(2).max(8).regex(/^[A-Z0-9]+$/, "A-Z, 0-9"),
   departure: icao,
   arrival: icao,
-  route: z.string().trim().max(200).optional().default(""),
-  squawk: z.string().trim().regex(/^[0-7]{4}$/, "4 digits 0-7").optional().or(z.literal("")),
-  status: z.enum(["parked", "taxi", "airborne", "landed"]),
+  squawk: z.string().trim().regex(/^[0-7]{4}$/, "4 digits 0-7"),
+  route: z.string().trim().max(200).default(""),
+  flightRule: z.enum(["IFR", "VFR"]),
+  cruiseLevel: z.string().trim().min(2).max(10).regex(/^[A-Z0-9]+$/, "e.g. FL350"),
+  gate: z.string().trim().min(1).max(10, "Max 10 chars"),
 });
 
 function FlightPlanPage() {
-  const { addFlight } = useFlightStore();
   const navigate = useNavigate();
+  const file = useServerFn(fileFlightPlan);
+  const { data: user } = useCurrentUser();
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    callsign: "",
-    aircraft: "",
-    departure: "",
-    arrival: "",
-    route: "",
-    squawk: "",
-    status: "parked" as FlightStatus,
+    callsign: "", aircraft: "", departure: "", arrival: "",
+    squawk: "", route: "", flightRule: "IFR" as "IFR" | "VFR",
+    cruiseLevel: "", gate: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const set = (k: keyof typeof form, v: string) =>
-    setForm((s) => ({ ...s, [k]: k === "status" ? (v as FlightStatus) : v.toUpperCase() }));
+    setForm((s) => ({ ...s, [k]: k === "flightRule" ? (v as "IFR" | "VFR") : v.toUpperCase() }));
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = schema.safeParse(form);
     if (!result.success) {
@@ -58,9 +60,16 @@ function FlightPlanPage() {
       return;
     }
     setErrors({});
-    addFlight({ ...result.data, route: result.data.route ?? "", squawk: result.data.squawk ?? "" });
-    toast.success(`Flight plan ${result.data.callsign} filed`);
-    navigate({ to: "/atc" });
+    setSubmitting(true);
+    try {
+      await file({ data: result.data });
+      toast.success(`Flight plan ${result.data.callsign} filed — pending approval`);
+      navigate({ to: "/my-flights" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to file");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -71,9 +80,15 @@ function FlightPlanPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">File Flight Plan</h1>
-          <p className="text-sm text-muted-foreground">Submit a new flight plan to the ATC network</p>
+          <p className="text-sm text-muted-foreground">Pending until ATC approval (auto-approves after 5 min)</p>
         </div>
       </header>
+
+      {!user && (
+        <div className="mb-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm">
+          You must sign in with Discord to file a flight plan.
+        </div>
+      )}
 
       <form onSubmit={onSubmit} className="space-y-6 rounded-xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -92,16 +107,20 @@ function FlightPlanPage() {
           <Field label="Squawk" error={errors.squawk}>
             <Input value={form.squawk} onChange={(e) => set("squawk", e.target.value)} placeholder="2000" maxLength={4} className="font-mono tracking-wider" />
           </Field>
-          <Field label="Initial Status">
-            <Select value={form.status} onValueChange={(v) => set("status", v)}>
+          <Field label="Flight Rule">
+            <Select value={form.flightRule} onValueChange={(v) => set("flightRule", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="parked">Parked</SelectItem>
-                <SelectItem value="taxi">Taxi</SelectItem>
-                <SelectItem value="airborne">Airborne</SelectItem>
-                <SelectItem value="landed">Landed</SelectItem>
+                <SelectItem value="IFR">IFR</SelectItem>
+                <SelectItem value="VFR">VFR</SelectItem>
               </SelectContent>
             </Select>
+          </Field>
+          <Field label="Cruise Level" error={errors.cruiseLevel}>
+            <Input value={form.cruiseLevel} onChange={(e) => set("cruiseLevel", e.target.value)} placeholder="FL350" maxLength={10} className="font-mono uppercase tracking-wider" />
+          </Field>
+          <Field label="Gate" error={errors.gate}>
+            <Input value={form.gate} onChange={(e) => set("gate", e.target.value)} placeholder="A12" maxLength={10} className="font-mono uppercase tracking-wider" />
           </Field>
         </div>
         <Field label="Route" error={errors.route}>
@@ -110,8 +129,8 @@ function FlightPlanPage() {
 
         <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
           <p className="text-xs text-muted-foreground font-mono">All fields validated against ICAO standards</p>
-          <Button type="submit" className="gap-2">
-            <Plane className="h-4 w-4 -rotate-45" /> File Plan
+          <Button type="submit" className="gap-2" disabled={submitting || !user}>
+            <Plane className="h-4 w-4 -rotate-45" /> {submitting ? "Filing…" : "File Plan"}
           </Button>
         </div>
       </form>
