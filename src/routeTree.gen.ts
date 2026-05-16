@@ -13,6 +13,7 @@ import { Route as VoiceRouteImport } from './routes/voice'
 import { Route as MyFlightsRouteImport } from './routes/my-flights'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FlightPlanRouteImport } from './routes/flight-plan'
+import { Route as ChartsRouteImport } from './routes/charts'
 import { Route as AtisRouteImport } from './routes/atis'
 import { Route as AtcRouteImport } from './routes/atc'
 import { Route as IndexRouteImport } from './routes/index'
@@ -37,6 +38,11 @@ const LoginRoute = LoginRouteImport.update({
 const FlightPlanRoute = FlightPlanRouteImport.update({
   id: '/flight-plan',
   path: '/flight-plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChartsRoute = ChartsRouteImport.update({
+  id: '/charts',
+  path: '/charts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AtisRoute = AtisRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
+  '/charts': typeof ChartsRoute
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
+  '/charts': typeof ChartsRoute
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
+  '/charts': typeof ChartsRoute
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/'
     | '/atc'
     | '/atis'
+    | '/charts'
     | '/flight-plan'
     | '/login'
     | '/my-flights'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/atc'
     | '/atis'
+    | '/charts'
     | '/flight-plan'
     | '/login'
     | '/my-flights'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/'
     | '/atc'
     | '/atis'
+    | '/charts'
     | '/flight-plan'
     | '/login'
     | '/my-flights'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AtcRoute: typeof AtcRoute
   AtisRoute: typeof AtisRoute
+  ChartsRoute: typeof ChartsRoute
   FlightPlanRoute: typeof FlightPlanRoute
   LoginRoute: typeof LoginRoute
   MyFlightsRoute: typeof MyFlightsRoute
@@ -176,6 +189,13 @@ declare module '@tanstack/react-router' {
       path: '/flight-plan'
       fullPath: '/flight-plan'
       preLoaderRoute: typeof FlightPlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/charts': {
+      id: '/charts'
+      path: '/charts'
+      fullPath: '/charts'
+      preLoaderRoute: typeof ChartsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/atis': {
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AtcRoute: AtcRoute,
   AtisRoute: AtisRoute,
+  ChartsRoute: ChartsRoute,
   FlightPlanRoute: FlightPlanRoute,
   LoginRoute: LoginRoute,
   MyFlightsRoute: MyFlightsRoute,

@@ -23,10 +23,26 @@ function admin() {
   return supabaseAdmin;
 }
 
+export const HIDDEN_VOICE_CHANNELS = new Set([
+  "AFK.AFK | AFK",
+  "365.365 | VC365",
+  "038.293 | Staff",
+  "Join To Create",
+  "000.000 | Beta's office",
+  "987.654 | Event",
+  "event-stage",
+  "983.783 | Training2",
+  "983.882 | Training1",
+]);
+
 export const listVoiceChannels = createServerFn({ method: "GET" }).handler(
   async (): Promise<{ guildId: string; channels: VoiceChannel[]; claims: Claim[] }> => {
     const guildId = process.env.DISCORD_GUILD_ID!;
     const botToken = process.env.DISCORD_BOT_TOKEN!;
+
+    // Auto-release ATC claims older than 1 hour so controllers can't go AFK indefinitely.
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    await admin().from("atc_claims").delete().lt("claimed_at", oneHourAgo);
 
     const [chRes, voiceRes, claimsRes] = await Promise.all([
       fetch(`https://discord.com/api/v10/guilds/${guildId}/channels`, {
@@ -73,7 +89,7 @@ export const listVoiceChannels = createServerFn({ method: "GET" }).handler(
     const memberMap = new Map(members.filter(Boolean).map((m) => [m!.id, m!]));
 
     const channels: VoiceChannel[] = all
-      .filter((c) => c.type === 2 || c.type === 13) // 2=voice, 13=stage
+      .filter((c) => (c.type === 2 || c.type === 13) && !HIDDEN_VOICE_CHANNELS.has(c.name))
       .sort((a, b) => a.position - b.position)
       .map((c) => ({
         id: c.id,

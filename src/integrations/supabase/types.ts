@@ -81,14 +81,17 @@ export type Database = {
           approved_at: string | null
           arrival: string
           callsign: string
+          copilot_discord_username: string
           created_at: string
           cruise_level: string
           departure: string
+          discord_username: string
           filer_discord_id: string | null
           filer_username: string | null
           flight_rule: string
           gate: string
           id: string
+          roblox_username: string
           route: string
           squawk: string
           status: Database["public"]["Enums"]["flight_status"]
@@ -100,14 +103,17 @@ export type Database = {
           approved_at?: string | null
           arrival: string
           callsign: string
+          copilot_discord_username?: string
           created_at?: string
           cruise_level?: string
           departure: string
+          discord_username?: string
           filer_discord_id?: string | null
           filer_username?: string | null
           flight_rule?: string
           gate?: string
           id?: string
+          roblox_username?: string
           route?: string
           squawk?: string
           status?: Database["public"]["Enums"]["flight_status"]
@@ -119,14 +125,17 @@ export type Database = {
           approved_at?: string | null
           arrival?: string
           callsign?: string
+          copilot_discord_username?: string
           created_at?: string
           cruise_level?: string
           departure?: string
+          discord_username?: string
           filer_discord_id?: string | null
           filer_username?: string | null
           flight_rule?: string
           gate?: string
           id?: string
+          roblox_username?: string
           route?: string
           squawk?: string
           status?: Database["public"]["Enums"]["flight_status"]

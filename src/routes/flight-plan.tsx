@@ -27,12 +27,16 @@ const schema = z.object({
   aircraft: z.string().trim().min(2).max(8).regex(/^[A-Z0-9]+$/, "A-Z, 0-9"),
   departure: icao,
   arrival: icao,
-  squawk: z.string().trim().regex(/^[0-7]{4}$/, "4 digits 0-7"),
   route: z.string().trim().max(200).default(""),
   flightRule: z.enum(["IFR", "VFR"]),
   cruiseLevel: z.string().trim().min(2).max(10).regex(/^[A-Z0-9]+$/, "e.g. FL350"),
   gate: z.string().trim().min(1).max(10, "Max 10 chars"),
+  robloxUsername: z.string().trim().min(1).max(32).regex(/^[A-Za-z0-9_]+$/, "Roblox letters/digits/_"),
+  discordUsername: z.string().trim().min(1).max(40, "Required"),
+  copilotDiscordUsername: z.string().trim().max(40).optional().default(""),
 });
+
+const UPPER_KEYS = new Set(["callsign", "aircraft", "departure", "arrival", "cruiseLevel", "gate", "route"]);
 
 function FlightPlanPage() {
   const navigate = useNavigate();
@@ -41,13 +45,14 @@ function FlightPlanPage() {
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     callsign: "", aircraft: "", departure: "", arrival: "",
-    squawk: "", route: "", flightRule: "IFR" as "IFR" | "VFR",
+    route: "", flightRule: "IFR" as "IFR" | "VFR",
     cruiseLevel: "", gate: "",
+    robloxUsername: "", discordUsername: "", copilotDiscordUsername: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const set = (k: keyof typeof form, v: string) =>
-    setForm((s) => ({ ...s, [k]: k === "flightRule" ? (v as "IFR" | "VFR") : v.toUpperCase() }));
+    setForm((s) => ({ ...s, [k]: k === "flightRule" ? (v as "IFR" | "VFR") : UPPER_KEYS.has(k) ? v.toUpperCase() : v }));
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +68,7 @@ function FlightPlanPage() {
     setSubmitting(true);
     try {
       await file({ data: result.data });
-      toast.success(`Flight plan ${result.data.callsign} filed — pending approval`);
+      toast.success(`Flight plan ${result.data.callsign} filed — pending approval (squawk 1000)`);
       navigate({ to: "/my-flights" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to file");
@@ -80,7 +85,7 @@ function FlightPlanPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">File Flight Plan</h1>
-          <p className="text-sm text-muted-foreground">Pending until ATC approval (auto-approves after 5 min)</p>
+          <p className="text-sm text-muted-foreground">Squawk is set to 1000 until your plan is approved. Pending until ATC approval (auto-approves after 5 min)</p>
         </div>
       </header>
 
@@ -104,9 +109,6 @@ function FlightPlanPage() {
           <Field label="Arrival (ICAO)" error={errors.arrival}>
             <Input value={form.arrival} onChange={(e) => set("arrival", e.target.value)} placeholder="KJFK" maxLength={4} className="font-mono uppercase tracking-wider" />
           </Field>
-          <Field label="Squawk" error={errors.squawk}>
-            <Input value={form.squawk} onChange={(e) => set("squawk", e.target.value)} placeholder="2000" maxLength={4} className="font-mono tracking-wider" />
-          </Field>
           <Field label="Flight Rule">
             <Select value={form.flightRule} onValueChange={(v) => set("flightRule", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -122,13 +124,22 @@ function FlightPlanPage() {
           <Field label="Gate" error={errors.gate}>
             <Input value={form.gate} onChange={(e) => set("gate", e.target.value)} placeholder="A12" maxLength={10} className="font-mono uppercase tracking-wider" />
           </Field>
+          <Field label="Roblox Username" error={errors.robloxUsername}>
+            <Input value={form.robloxUsername} onChange={(e) => set("robloxUsername", e.target.value)} placeholder="Builderman" maxLength={32} className="font-mono" />
+          </Field>
+          <Field label="Discord Username" error={errors.discordUsername}>
+            <Input value={form.discordUsername} onChange={(e) => set("discordUsername", e.target.value)} placeholder="pilot.user" maxLength={40} className="font-mono" />
+          </Field>
+          <Field label="Copilot Discord (optional)" error={errors.copilotDiscordUsername}>
+            <Input value={form.copilotDiscordUsername} onChange={(e) => set("copilotDiscordUsername", e.target.value)} placeholder="copilot.user" maxLength={40} className="font-mono" />
+          </Field>
         </div>
         <Field label="Route" error={errors.route}>
           <Input value={form.route} onChange={(e) => set("route", e.target.value)} placeholder="MALOT NATA TUDEP" maxLength={200} className="font-mono uppercase" />
         </Field>
 
         <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
-          <p className="text-xs text-muted-foreground font-mono">All fields validated against ICAO standards</p>
+          <p className="text-xs text-muted-foreground font-mono">Squawk is auto-assigned to 1000. Editable in My Flights after approval.</p>
           <Button type="submit" className="gap-2" disabled={submitting || !user}>
             <Plane className="h-4 w-4 -rotate-45" /> {submitting ? "Filing…" : "File Plan"}
           </Button>

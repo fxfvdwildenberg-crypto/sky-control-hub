@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Plane, Trash2, FileText, Shuffle } from "lucide-react";
+import { Plane, Trash2, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { useFlightStore, STATUS_META, APPROVAL_META, type FlightPlan, type FlightStatus } from "@/lib/flight-store";
+import { useFlightStore, STATUS_META, APPROVAL_META, emergencyFor, type FlightPlan, type FlightStatus } from "@/lib/flight-store";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { updateOwnFlightPlan, deleteOwnFlightPlan } from "@/lib/flight.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/my-flights")({
   head: () => ({
@@ -24,10 +25,15 @@ function MyFlightsPage() {
   const { flights } = useFlightStore();
   const { data: user, isLoading } = useCurrentUser();
 
-  const mine = useMemo(
-    () => flights.filter((f) => user && f.filerDiscordId === user.discordId),
-    [flights, user],
-  );
+  const mine = useMemo(() => {
+    if (!user) return [];
+    const myDiscordHandle = (user.username ?? "").toLowerCase();
+    return flights.filter((f) => {
+      if (f.filerDiscordId === user.discordId) return true;
+      const copilot = (f.copilotDiscordUsername ?? "").trim().toLowerCase();
+      return !!copilot && copilot === myDiscordHandle;
+    });
+  }, [flights, user]);
 
   if (isLoading) {
     return <div className="px-8 py-12 text-sm text-muted-foreground">Loading…</div>;
@@ -71,12 +77,18 @@ function MyFlightsPage() {
 }
 
 function MyFlightRow({ flight }: { flight: FlightPlan }) {
+  const { data: user } = useCurrentUser();
   const update = useServerFn(updateOwnFlightPlan);
   const remove = useServerFn(deleteOwnFlightPlan);
   const [squawk, setSquawk] = useState(flight.squawk);
+  const isOwner = !!user && flight.filerDiscordId === user.discordId;
   const isDenied = flight.approvalStatus === "denied";
+  const isApproved = flight.approvalStatus === "approved";
   const meta = STATUS_META[flight.status];
   const ap = APPROVAL_META[flight.approvalStatus];
+  const emerg = emergencyFor(flight.squawk);
+  const canEditStatus = isOwner && !isDenied;
+  const canEditSquawk = isOwner && isApproved;
 
   const onStatus = async (v: string) => {
     try {
@@ -86,17 +98,12 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
   };
 
   const saveSquawk = async () => {
+    if (squawk === flight.squawk) return;
     if (!/^[0-7]{4}$/.test(squawk)) { toast.error("Squawk must be 4 digits 0-7"); return; }
     try {
       await update({ data: { id: flight.id, squawk } });
       toast.success("Squawk updated");
     } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
-  };
-
-  const randomSquawk = () => {
-    const s = Array.from({ length: 4 }, () => Math.floor(Math.random() * 8)).join("");
-    setSquawk(s);
-    update({ data: { id: flight.id, squawk: s } }).then(() => toast.success(`Assigned ${s}`)).catch((e) => toast.error(e.message));
   };
 
   const onDelete = async () => {
@@ -107,7 +114,14 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4 animate-fade-in-up">
+    <div className={`rounded-xl border p-4 animate-fade-in-up ${emerg ? "border-destructive bg-destructive/10 ring-1 ring-destructive/40" : "border-border bg-card"}`}>
+      {emerg && (
+        <div className="mb-3 flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/20 px-3 py-2 text-destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <span className="font-mono text-xs font-bold uppercase tracking-wider">SQUAWK {flight.squawk} · {emerg.label}</span>
+          <span className="text-[11px] opacity-80">{emerg.short}</span>
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary">
@@ -125,25 +139,30 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
         </span>
       </div>
 
-      {flight.route && <div className="mt-2 font-mono text-[11px] text-muted-foreground">Route: {flight.route}</div>}
+      <div className="mt-2 font-mono text-[11px] text-muted-foreground space-y-0.5">
+        {flight.route && <div>Route: {flight.route}</div>}
+        <div>
+          Pilot: {flight.robloxUsername || "—"} (Roblox) · {flight.discordUsername || "—"} (Discord)
+          {flight.copilotDiscordUsername && <> · Copilot: {flight.copilotDiscordUsername}</>}
+        </div>
+        {!isOwner && <div className="text-primary">You are listed as copilot on this flight.</div>}
+      </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-1">
           <span className="text-[10px] font-mono uppercase text-muted-foreground mr-1">Squawk</span>
-          <Input value={squawk} maxLength={4} disabled={isDenied}
+          <Input value={squawk} maxLength={4} disabled={!canEditSquawk}
             onChange={(e) => setSquawk(e.target.value.replace(/[^0-7]/g, ""))}
             onBlur={saveSquawk}
+            title={canEditSquawk ? "Editable" : isApproved ? "Only the filer can change squawk" : "Squawk unlocks after approval"}
             className="h-8 w-20 font-mono tracking-widest text-center" />
-          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={randomSquawk} disabled={isDenied}>
-            <Shuffle className="h-3.5 w-3.5" />
-          </Button>
         </div>
 
         <div className="flex items-center gap-1">
           <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-mono uppercase ${meta.color}`}>
             <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} /> {meta.label}
           </span>
-          <Select value={flight.status} onValueChange={onStatus} disabled={isDenied}>
+          <Select value={flight.status} onValueChange={onStatus} disabled={!canEditStatus}>
             <SelectTrigger className="h-8 w-[110px] text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="parked">Parked</SelectItem>
@@ -154,13 +173,18 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
           </Select>
         </div>
 
-        <Button size="sm" variant="ghost" className="ml-auto text-destructive hover:bg-destructive/10 gap-1.5" onClick={onDelete}>
-          <Trash2 className="h-3.5 w-3.5" /> Delete
-        </Button>
+        {isOwner && (
+          <Button size="sm" variant="ghost" className="ml-auto text-destructive hover:bg-destructive/10 gap-1.5" onClick={onDelete}>
+            <Trash2 className="h-3.5 w-3.5" /> Delete
+          </Button>
+        )}
       </div>
 
-      {isDenied && (
+      {isDenied && isOwner && (
         <p className="mt-2 text-[11px] text-destructive">This flight plan was denied. You can no longer edit it — only delete.</p>
+      )}
+      {!isApproved && !isDenied && isOwner && (
+        <p className="mt-2 text-[11px] text-muted-foreground">Squawk stays 1000 until ATC approves your plan.</p>
       )}
     </div>
   );
