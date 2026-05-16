@@ -1,5 +1,5 @@
-import { useFlightStore, STATUS_META, type FlightPlan } from "@/lib/flight-store";
-import { Plane, MapPin, Hash } from "lucide-react";
+import { STATUS_META, emergencyFor, type FlightPlan } from "@/lib/flight-store";
+import { Plane, MapPin, Hash, AlertTriangle } from "lucide-react";
 
 interface Props {
   flight: FlightPlan;
@@ -8,8 +8,15 @@ interface Props {
 
 export function FlightCard({ flight, compact }: Props) {
   const meta = STATUS_META[flight.status];
+  const emerg = emergencyFor(flight.squawk);
   return (
-    <div className="group relative overflow-hidden rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-[var(--shadow-card)] animate-fade-in-up">
+    <div className={`group relative overflow-hidden rounded-lg border p-4 transition-all hover:shadow-[var(--shadow-card)] animate-fade-in-up ${emerg ? "border-destructive bg-destructive/10 ring-1 ring-destructive/40" : "border-border bg-card hover:border-primary/50"}`}>
+      {emerg && (
+        <div className="relative mb-2 flex items-center gap-1.5 text-destructive">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          <span className="font-mono text-[10px] font-bold uppercase tracking-wider">{emerg.label}</span>
+        </div>
+      )}
       <div className="absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100" style={{ background: "var(--gradient-radar)" }} />
       <div className="relative flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
