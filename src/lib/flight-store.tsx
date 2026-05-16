@@ -107,6 +107,9 @@ const mapFlight = (r: FlightRow): FlightPlan => ({
   filerUsername: r.filer_username,
   approvalStatus: (r.approval_status as ApprovalStatus) ?? "pending",
   createdAt: new Date(r.created_at).getTime(),
+  robloxUsername: r.roblox_username ?? "",
+  discordUsername: r.discord_username ?? "",
+  copilotDiscordUsername: r.copilot_discord_username ?? "",
 });
 
 const mapAtis = (r: AtisRow): AtisEntry => ({
