@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Plane, Trash2, FileText, Shuffle } from "lucide-react";
+import { Plane, Trash2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { useFlightStore, STATUS_META, APPROVAL_META, emergencyFor, type FlightPlan, type FlightStatus } from "@/lib/flight-store";
 import { useCurrentUser } from "@/lib/use-current-user";
