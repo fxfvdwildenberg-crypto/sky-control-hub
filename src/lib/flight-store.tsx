@@ -21,6 +21,19 @@ export interface FlightPlan {
   filerUsername: string | null;
   approvalStatus: ApprovalStatus;
   createdAt: number;
+  robloxUsername: string;
+  discordUsername: string;
+  copilotDiscordUsername: string;
+}
+
+export const EMERGENCY_SQUAWKS: Record<string, { label: string; short: string }> = {
+  "7700": { label: "EMERGENCY", short: "General emergency" },
+  "7600": { label: "HIJACKING", short: "Hijacking in progress" },
+  "7500": { label: "RADIO FAILURE", short: "Lost communications" },
+};
+
+export function emergencyFor(squawk: string) {
+  return EMERGENCY_SQUAWKS[squawk] ?? null;
 }
 
 export interface AtisEntry {
@@ -62,6 +75,9 @@ type FlightRow = {
   filer_username: string | null;
   approval_status: string;
   created_at: string;
+  roblox_username?: string;
+  discord_username?: string;
+  copilot_discord_username?: string;
 };
 
 type AtisRow = {

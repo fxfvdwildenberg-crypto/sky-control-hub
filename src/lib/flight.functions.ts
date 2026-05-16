@@ -10,11 +10,13 @@ const fileSchema = z.object({
   aircraft: z.string().trim().min(2).max(8).regex(/^[A-Z0-9]+$/),
   departure: icao,
   arrival: icao,
-  squawk: z.string().trim().regex(/^[0-7]{4}$/),
   route: z.string().trim().max(200).default(""),
   flightRule: z.enum(["IFR", "VFR"]),
   cruiseLevel: z.string().trim().max(10).regex(/^[A-Z0-9]+$/),
   gate: z.string().trim().max(10),
+  robloxUsername: z.string().trim().min(1).max(32).regex(/^[A-Za-z0-9_]+$/),
+  discordUsername: z.string().trim().min(1).max(40),
+  copilotDiscordUsername: z.string().trim().max(40).optional().default(""),
 });
 
 export const fileFlightPlan = createServerFn({ method: "POST" })
@@ -27,7 +29,7 @@ export const fileFlightPlan = createServerFn({ method: "POST" })
       aircraft: data.aircraft,
       departure: data.departure,
       arrival: data.arrival,
-      squawk: data.squawk,
+      squawk: "1000",
       route: data.route ?? "",
       status: "parked",
       flight_rule: data.flightRule,
@@ -36,7 +38,10 @@ export const fileFlightPlan = createServerFn({ method: "POST" })
       filer_discord_id: s.data.discordId,
       filer_username: s.data.username ?? null,
       approval_status: "pending",
-    });
+      roblox_username: data.robloxUsername,
+      discord_username: data.discordUsername,
+      copilot_discord_username: data.copilotDiscordUsername ?? "",
+    } as never);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -60,6 +65,9 @@ export const updateOwnFlightPlan = createServerFn({ method: "POST" })
     if (e1 || !row) throw new Error("Flight plan not found");
     if (row.filer_discord_id !== s.data.discordId) throw new Error("Not your flight plan");
     if (row.approval_status === "denied") throw new Error("This flight plan was denied — you can only delete it");
+    if (data.squawk && row.approval_status !== "approved") {
+      throw new Error("Squawk can only be changed after your flight plan is approved");
+    }
     const patch: Record<string, unknown> = {};
     if (data.status) patch.status = data.status;
     if (data.squawk) patch.squawk = data.squawk;
