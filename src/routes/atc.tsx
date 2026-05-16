@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useFlightStore, STATUS_META, APPROVAL_META, type FlightStatus, type FlightPlan } from "@/lib/flight-store";
+import { useFlightStore, STATUS_META, APPROVAL_META, emergencyFor, type FlightStatus, type FlightPlan } from "@/lib/flight-store";
 import { decideFlightPlan } from "@/lib/flight.functions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Radar, Search, RefreshCw, Trash2, Shuffle, Plane, Check, X } from "lucide-react";
+import { Radar, Search, RefreshCw, Trash2, Shuffle, Plane, Check, X, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { RoleGuard } from "@/components/RoleGuard";
 
@@ -122,8 +122,16 @@ function FlightRow({
     } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
   };
 
+  const emerg = emergencyFor(flight.squawk);
   return (
-    <div className="px-4 py-3 hover:bg-muted/20 transition animate-fade-in-up">
+    <div className={`px-4 py-3 transition animate-fade-in-up ${emerg ? "bg-destructive/15 ring-1 ring-inset ring-destructive/40" : "hover:bg-muted/20"}`}>
+      {emerg && (
+        <div className="mb-2 flex items-center gap-2 text-destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <span className="font-mono text-xs font-bold uppercase tracking-wider">SQUAWK {flight.squawk} · {emerg.label}</span>
+          <span className="text-[11px] opacity-80">{emerg.short}</span>
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-3 min-w-[200px]">
           <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary">
