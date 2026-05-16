@@ -89,7 +89,7 @@ export const listVoiceChannels = createServerFn({ method: "GET" }).handler(
     const memberMap = new Map(members.filter(Boolean).map((m) => [m!.id, m!]));
 
     const channels: VoiceChannel[] = all
-      .filter((c) => c.type === 2 || c.type === 13) // 2=voice, 13=stage
+      .filter((c) => (c.type === 2 || c.type === 13) && !HIDDEN_VOICE_CHANNELS.has(c.name))
       .sort((a, b) => a.position - b.position)
       .map((c) => ({
         id: c.id,
