@@ -3,12 +3,13 @@ import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Plane, Trash2, FileText, Shuffle } from "lucide-react";
 import { toast } from "sonner";
-import { useFlightStore, STATUS_META, APPROVAL_META, type FlightPlan, type FlightStatus } from "@/lib/flight-store";
+import { useFlightStore, STATUS_META, APPROVAL_META, emergencyFor, type FlightPlan, type FlightStatus } from "@/lib/flight-store";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { updateOwnFlightPlan, deleteOwnFlightPlan } from "@/lib/flight.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/my-flights")({
   head: () => ({
