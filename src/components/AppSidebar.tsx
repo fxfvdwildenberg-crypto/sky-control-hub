@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon } from "lucide-react";
+import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon, Handshake } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { logout } from "@/lib/auth.functions";
