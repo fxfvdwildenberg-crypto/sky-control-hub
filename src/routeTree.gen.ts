@@ -18,6 +18,7 @@ import { Route as ChartsRouteImport } from './routes/charts'
 import { Route as AtisRouteImport } from './routes/atis'
 import { Route as AtcRouteImport } from './routes/atc'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PartnersSlugRouteImport } from './routes/partners.$slug'
 import { Route as ApiPublicDiscordLoginRouteImport } from './routes/api/public/discord/login'
 import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/public/discord/callback'
 
@@ -66,6 +67,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnersSlugRoute = PartnersSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => PartnersRoute,
+} as any)
 const ApiPublicDiscordLoginRoute = ApiPublicDiscordLoginRouteImport.update({
   id: '/api/public/discord/login',
   path: '/api/public/discord/login',
@@ -86,8 +92,9 @@ export interface FileRoutesByFullPath {
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
-  '/partners': typeof PartnersRoute
+  '/partners': typeof PartnersRouteWithChildren
   '/voice': typeof VoiceRoute
+  '/partners/$slug': typeof PartnersSlugRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
@@ -99,8 +106,9 @@ export interface FileRoutesByTo {
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
-  '/partners': typeof PartnersRoute
+  '/partners': typeof PartnersRouteWithChildren
   '/voice': typeof VoiceRoute
+  '/partners/$slug': typeof PartnersSlugRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
@@ -113,8 +121,9 @@ export interface FileRoutesById {
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
-  '/partners': typeof PartnersRoute
+  '/partners': typeof PartnersRouteWithChildren
   '/voice': typeof VoiceRoute
+  '/partners/$slug': typeof PartnersSlugRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/my-flights'
     | '/partners'
     | '/voice'
+    | '/partners/$slug'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
   fileRoutesByTo: FileRoutesByTo
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/my-flights'
     | '/partners'
     | '/voice'
+    | '/partners/$slug'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
   id:
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/my-flights'
     | '/partners'
     | '/voice'
+    | '/partners/$slug'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
   fileRoutesById: FileRoutesById
@@ -168,7 +180,7 @@ export interface RootRouteChildren {
   FlightPlanRoute: typeof FlightPlanRoute
   LoginRoute: typeof LoginRoute
   MyFlightsRoute: typeof MyFlightsRoute
-  PartnersRoute: typeof PartnersRoute
+  PartnersRoute: typeof PartnersRouteWithChildren
   VoiceRoute: typeof VoiceRoute
   ApiPublicDiscordCallbackRoute: typeof ApiPublicDiscordCallbackRoute
   ApiPublicDiscordLoginRoute: typeof ApiPublicDiscordLoginRoute
@@ -239,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partners/$slug': {
+      id: '/partners/$slug'
+      path: '/$slug'
+      fullPath: '/partners/$slug'
+      preLoaderRoute: typeof PartnersSlugRouteImport
+      parentRoute: typeof PartnersRoute
+    }
     '/api/public/discord/login': {
       id: '/api/public/discord/login'
       path: '/api/public/discord/login'
@@ -256,6 +275,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface PartnersRouteChildren {
+  PartnersSlugRoute: typeof PartnersSlugRoute
+}
+
+const PartnersRouteChildren: PartnersRouteChildren = {
+  PartnersSlugRoute: PartnersSlugRoute,
+}
+
+const PartnersRouteWithChildren = PartnersRoute._addFileChildren(
+  PartnersRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AtcRoute: AtcRoute,
@@ -264,7 +295,7 @@ const rootRouteChildren: RootRouteChildren = {
   FlightPlanRoute: FlightPlanRoute,
   LoginRoute: LoginRoute,
   MyFlightsRoute: MyFlightsRoute,
-  PartnersRoute: PartnersRoute,
+  PartnersRoute: PartnersRouteWithChildren,
   VoiceRoute: VoiceRoute,
   ApiPublicDiscordCallbackRoute: ApiPublicDiscordCallbackRoute,
   ApiPublicDiscordLoginRoute: ApiPublicDiscordLoginRoute,
