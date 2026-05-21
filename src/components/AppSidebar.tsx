@@ -27,6 +27,7 @@ const items = [
   { title: "ATIS", url: "/atis", icon: Radio },
   { title: "Voice", url: "/voice", icon: Headphones },
   { title: "Charts", url: "/charts", icon: MapIcon },
+  { title: "Partners", url: "/partners", icon: Handshake },
 ];
 
 export function AppSidebar() {
