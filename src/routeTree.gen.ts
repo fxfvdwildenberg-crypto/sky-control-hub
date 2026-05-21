@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoiceRouteImport } from './routes/voice'
+import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as MyFlightsRouteImport } from './routes/my-flights'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FlightPlanRouteImport } from './routes/flight-plan'
@@ -23,6 +24,11 @@ import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/publi
 const VoiceRoute = VoiceRouteImport.update({
   id: '/voice',
   path: '/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersRoute = PartnersRouteImport.update({
+  id: '/partners',
+  path: '/partners',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyFlightsRoute = MyFlightsRouteImport.update({
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
+  '/partners': typeof PartnersRoute
   '/voice': typeof VoiceRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
+  '/partners': typeof PartnersRoute
   '/voice': typeof VoiceRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/flight-plan': typeof FlightPlanRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
+  '/partners': typeof PartnersRoute
   '/voice': typeof VoiceRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/flight-plan'
     | '/login'
     | '/my-flights'
+    | '/partners'
     | '/voice'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/flight-plan'
     | '/login'
     | '/my-flights'
+    | '/partners'
     | '/voice'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/flight-plan'
     | '/login'
     | '/my-flights'
+    | '/partners'
     | '/voice'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   FlightPlanRoute: typeof FlightPlanRoute
   LoginRoute: typeof LoginRoute
   MyFlightsRoute: typeof MyFlightsRoute
+  PartnersRoute: typeof PartnersRoute
   VoiceRoute: typeof VoiceRoute
   ApiPublicDiscordCallbackRoute: typeof ApiPublicDiscordCallbackRoute
   ApiPublicDiscordLoginRoute: typeof ApiPublicDiscordLoginRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/voice'
       fullPath: '/voice'
       preLoaderRoute: typeof VoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partners': {
+      id: '/partners'
+      path: '/partners'
+      fullPath: '/partners'
+      preLoaderRoute: typeof PartnersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-flights': {
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   FlightPlanRoute: FlightPlanRoute,
   LoginRoute: LoginRoute,
   MyFlightsRoute: MyFlightsRoute,
+  PartnersRoute: PartnersRoute,
   VoiceRoute: VoiceRoute,
   ApiPublicDiscordCallbackRoute: ApiPublicDiscordCallbackRoute,
   ApiPublicDiscordLoginRoute: ApiPublicDiscordLoginRoute,
@@ -251,3 +272,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
