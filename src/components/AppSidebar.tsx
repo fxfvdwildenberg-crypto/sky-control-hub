@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon } from "lucide-react";
+import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon, Handshake } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { logout } from "@/lib/auth.functions";
@@ -27,6 +27,7 @@ const items = [
   { title: "ATIS", url: "/atis", icon: Radio },
   { title: "Voice", url: "/voice", icon: Headphones },
   { title: "Charts", url: "/charts", icon: MapIcon },
+  { title: "Partners", url: "/partners", icon: Handshake },
 ];
 
 export function AppSidebar() {
