@@ -143,6 +143,109 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_announcements: {
+        Row: {
+          author_username: string
+          content: string
+          created_at: string
+          id: string
+          partner_id: string
+        }
+        Insert: {
+          author_username?: string
+          content: string
+          created_at?: string
+          id?: string
+          partner_id: string
+        }
+        Update: {
+          author_username?: string
+          content?: string
+          created_at?: string
+          id?: string
+          partner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_announcements_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_messages: {
+        Row: {
+          content: string
+          created_at: string
+          discord_id: string
+          id: string
+          partner_id: string
+          username: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          discord_id: string
+          id?: string
+          partner_id: string
+          username: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          discord_id?: string
+          id?: string
+          partner_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_messages_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partners: {
+        Row: {
+          bio: string
+          created_at: string
+          discord_url: string
+          id: string
+          name: string
+          owner_code: string
+          slug: string
+          theme: Json
+          updated_at: string
+        }
+        Insert: {
+          bio?: string
+          created_at?: string
+          discord_url?: string
+          id?: string
+          name: string
+          owner_code: string
+          slug: string
+          theme?: Json
+          updated_at?: string
+        }
+        Update: {
+          bio?: string
+          created_at?: string
+          discord_url?: string
+          id?: string
+          name?: string
+          owner_code?: string
+          slug?: string
+          theme?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
