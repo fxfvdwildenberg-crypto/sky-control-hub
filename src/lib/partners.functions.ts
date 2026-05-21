@@ -102,7 +102,9 @@ export const updatePartnerProfile = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     await verifyCode(data.slug, data.code);
-    const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    const patch: { bio?: string; discord_url?: string; updated_at: string } = {
+      updated_at: new Date().toISOString(),
+    };
     if (data.bio !== undefined) patch.bio = data.bio;
     if (data.discord_url !== undefined) {
       const url = data.discord_url.trim();
