@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoiceRouteImport } from './routes/voice'
 import { Route as MyFlightsRouteImport } from './routes/my-flights'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as GroundRouteImport } from './routes/ground'
 import { Route as FlightPlanRouteImport } from './routes/flight-plan'
 import { Route as ChartsRouteImport } from './routes/charts'
 import { Route as AtisRouteImport } from './routes/atis'
@@ -35,6 +36,11 @@ const MyFlightsRoute = MyFlightsRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GroundRoute = GroundRouteImport.update({
+  id: '/ground',
+  path: '/ground',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FlightPlanRoute = FlightPlanRouteImport.update({
@@ -68,9 +74,9 @@ const PartnersIndexRoute = PartnersIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersSlugRoute = PartnersSlugRouteImport.update({
-  id: '/partners/$slug',
-  path: '/partners/$slug',
-  getParentRoute: () => rootRouteImport,
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => PartnersRoute,
 } as any)
 const ApiPublicDiscordLoginRoute = ApiPublicDiscordLoginRouteImport.update({
   id: '/api/public/discord/login',
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
   '/flight-plan': typeof FlightPlanRoute
+  '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
   '/voice': typeof VoiceRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
   '/flight-plan': typeof FlightPlanRoute
+  '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
   '/voice': typeof VoiceRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
   '/flight-plan': typeof FlightPlanRoute
+  '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
   '/voice': typeof VoiceRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/atis'
     | '/charts'
     | '/flight-plan'
+    | '/ground'
     | '/login'
     | '/my-flights'
     | '/voice'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/atis'
     | '/charts'
     | '/flight-plan'
+    | '/ground'
     | '/login'
     | '/my-flights'
     | '/voice'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/atis'
     | '/charts'
     | '/flight-plan'
+    | '/ground'
     | '/login'
     | '/my-flights'
     | '/voice'
@@ -178,10 +190,10 @@ export interface RootRouteChildren {
   AtisRoute: typeof AtisRoute
   ChartsRoute: typeof ChartsRoute
   FlightPlanRoute: typeof FlightPlanRoute
+  GroundRoute: typeof GroundRoute
   LoginRoute: typeof LoginRoute
   MyFlightsRoute: typeof MyFlightsRoute
   VoiceRoute: typeof VoiceRoute
-  PartnersSlugRoute: typeof PartnersSlugRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
   ApiPublicDiscordCallbackRoute: typeof ApiPublicDiscordCallbackRoute
   ApiPublicDiscordLoginRoute: typeof ApiPublicDiscordLoginRoute
@@ -208,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ground': {
+      id: '/ground'
+      path: '/ground'
+      fullPath: '/ground'
+      preLoaderRoute: typeof GroundRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/flight-plan': {
@@ -254,10 +273,10 @@ declare module '@tanstack/react-router' {
     }
     '/partners/$slug': {
       id: '/partners/$slug'
-      path: '/partners/$slug'
+      path: '/$slug'
       fullPath: '/partners/$slug'
       preLoaderRoute: typeof PartnersSlugRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof PartnersRoute
     }
     '/api/public/discord/login': {
       id: '/api/public/discord/login'
@@ -282,10 +301,10 @@ const rootRouteChildren: RootRouteChildren = {
   AtisRoute: AtisRoute,
   ChartsRoute: ChartsRoute,
   FlightPlanRoute: FlightPlanRoute,
+  GroundRoute: GroundRoute,
   LoginRoute: LoginRoute,
   MyFlightsRoute: MyFlightsRoute,
   VoiceRoute: VoiceRoute,
-  PartnersSlugRoute: PartnersSlugRoute,
   PartnersIndexRoute: PartnersIndexRoute,
   ApiPublicDiscordCallbackRoute: ApiPublicDiscordCallbackRoute,
   ApiPublicDiscordLoginRoute: ApiPublicDiscordLoginRoute,
@@ -293,3 +312,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
