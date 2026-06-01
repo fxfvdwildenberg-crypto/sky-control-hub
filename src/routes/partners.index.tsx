@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Handshake, ArrowRight, Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/partners")({
+export const Route = createFileRoute("/partners/")({
   component: PartnersPage,
   head: () => ({
     meta: [

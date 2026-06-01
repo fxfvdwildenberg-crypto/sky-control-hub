@@ -143,6 +143,98 @@ export type Database = {
         }
         Relationships: []
       }
+      ground_messages: {
+        Row: {
+          content: string
+          created_at: string
+          discord_id: string
+          id: string
+          request_id: string
+          role: string
+          username: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          discord_id: string
+          id?: string
+          request_id: string
+          role: string
+          username: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          discord_id?: string
+          id?: string
+          request_id?: string
+          role?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ground_messages_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ground_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ground_requests: {
+        Row: {
+          aircraft: string
+          airport: string
+          callsign: string
+          created_at: string
+          crew_discord_id: string | null
+          crew_roblox_username: string | null
+          crew_username: string | null
+          finished_at: string | null
+          gate: string
+          id: string
+          pilot_discord_id: string
+          pilot_username: string
+          services: string[]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          aircraft: string
+          airport: string
+          callsign: string
+          created_at?: string
+          crew_discord_id?: string | null
+          crew_roblox_username?: string | null
+          crew_username?: string | null
+          finished_at?: string | null
+          gate: string
+          id?: string
+          pilot_discord_id: string
+          pilot_username: string
+          services?: string[]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          aircraft?: string
+          airport?: string
+          callsign?: string
+          created_at?: string
+          crew_discord_id?: string | null
+          crew_roblox_username?: string | null
+          crew_username?: string | null
+          finished_at?: string | null
+          gate?: string
+          id?: string
+          pilot_discord_id?: string
+          pilot_username?: string
+          services?: string[]
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       partner_announcements: {
         Row: {
           author_username: string
