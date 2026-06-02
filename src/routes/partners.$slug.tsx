@@ -10,6 +10,7 @@ import {
   postPartnerMessage,
 } from "@/lib/partners.functions";
 import { useCurrentUser } from "@/lib/use-current-user";
+import { useTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,6 +29,7 @@ import {
   Loader2,
   ExternalLink,
   Info,
+  Palette,
 } from "lucide-react";
 
 export const Route = createFileRoute("/partners/$slug")({
@@ -39,6 +41,7 @@ function PartnerDashboard() {
   const fn = useServerFn(getPartner);
   const qc = useQueryClient();
   const { data: user } = useCurrentUser();
+  const { partnerTheme, applyPartnerTheme } = useTheme();
   const { data, isLoading, error } = useQuery({
     queryKey: ["partner", slug],
     queryFn: () => fn({ data: { slug } }),
@@ -138,21 +141,34 @@ function PartnerDashboard() {
               <ArrowLeft className="h-3.5 w-3.5" /> All partners
             </Button>
           </Link>
-          {partner.discord_url ? (
-            <a href={partner.discord_url} target="_blank" rel="noreferrer">
+          <div className="flex flex-wrap items-center gap-2">
+            {partnerTheme?.slug === partner.slug ? (
+              <Button size="sm" variant="outline" className="gap-2" onClick={() => applyPartnerTheme(null)}>
+                <Palette className="h-3.5 w-3.5" /> Reset site theme
+              </Button>
+            ) : (
               <Button
                 size="sm"
+                variant="secondary"
                 className="gap-2"
-                style={{ background: theme.primary, color: theme.text }}
+                onClick={() => applyPartnerTheme({
+                  slug: partner.slug, name: partner.name,
+                  bg: theme.bg, text: theme.text, primary: theme.primary, accent: theme.accent,
+                })}
               >
-                <ExternalLink className="h-3.5 w-3.5" /> Join Discord server
+                <Palette className="h-3.5 w-3.5" /> Apply theme site-wide
               </Button>
-            </a>
-          ) : (
-            <Badge variant="outline" className="border-white/30 text-current">
-              No Discord link set
-            </Badge>
-          )}
+            )}
+            {partner.discord_url ? (
+              <a href={partner.discord_url} target="_blank" rel="noreferrer">
+                <Button size="sm" className="gap-2" style={{ background: theme.primary, color: theme.text }}>
+                  <ExternalLink className="h-3.5 w-3.5" /> Join Discord server
+                </Button>
+              </a>
+            ) : (
+              <Badge variant="outline" className="border-white/30 text-current">No Discord link set</Badge>
+            )}
+          </div>
         </div>
 
         {/* Hero / Bio */}
