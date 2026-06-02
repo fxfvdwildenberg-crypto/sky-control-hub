@@ -61,14 +61,17 @@ function VoicePage() {
 
   const guildId = data?.guildId;
   const myClaim = data?.claims.find((c) => c.discord_id === user?.discordId);
+  const canClaimAtc = !!user?.hasAtcRole;
 
   const filtered = useMemo(() => {
     const channels = data?.channels ?? [];
     const q = query.trim().toLowerCase();
-    if (!q) return channels;
     if (mode === "hard") {
-      return channels.filter((c) => frequencyOf(c.name).toLowerCase().includes(q));
+      // HARD: nothing visible until query matches exact frequency
+      if (!q) return [];
+      return channels.filter((c) => frequencyOf(c.name).toLowerCase() === q);
     }
+    if (!q) return channels;
     return channels.filter((c) => c.name.toLowerCase().includes(q));
   }, [data, query, mode]);
 
