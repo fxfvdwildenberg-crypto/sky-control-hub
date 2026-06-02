@@ -190,6 +190,7 @@ export type Database = {
           crew_discord_id: string | null
           crew_roblox_username: string | null
           crew_username: string | null
+          denied_at: string | null
           finished_at: string | null
           gate: string
           id: string
@@ -207,6 +208,7 @@ export type Database = {
           crew_discord_id?: string | null
           crew_roblox_username?: string | null
           crew_username?: string | null
+          denied_at?: string | null
           finished_at?: string | null
           gate: string
           id?: string
@@ -224,6 +226,7 @@ export type Database = {
           crew_discord_id?: string | null
           crew_roblox_username?: string | null
           crew_username?: string | null
+          denied_at?: string | null
           finished_at?: string | null
           gate?: string
           id?: string

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoiceRouteImport } from './routes/voice'
+import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as MyFlightsRouteImport } from './routes/my-flights'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GroundRouteImport } from './routes/ground'
@@ -26,6 +27,11 @@ import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/publi
 const VoiceRoute = VoiceRouteImport.update({
   id: '/voice',
   path: '/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OverviewRoute = OverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyFlightsRoute = MyFlightsRouteImport.update({
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
+  '/overview': typeof OverviewRoute
   '/voice': typeof VoiceRoute
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners/': typeof PartnersIndexRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
+  '/overview': typeof OverviewRoute
   '/voice': typeof VoiceRoute
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners': typeof PartnersIndexRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
+  '/overview': typeof OverviewRoute
   '/voice': typeof VoiceRoute
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners/': typeof PartnersIndexRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/ground'
     | '/login'
     | '/my-flights'
+    | '/overview'
     | '/voice'
     | '/partners/$slug'
     | '/partners/'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/ground'
     | '/login'
     | '/my-flights'
+    | '/overview'
     | '/voice'
     | '/partners/$slug'
     | '/partners'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/ground'
     | '/login'
     | '/my-flights'
+    | '/overview'
     | '/voice'
     | '/partners/$slug'
     | '/partners/'
@@ -193,6 +205,7 @@ export interface RootRouteChildren {
   GroundRoute: typeof GroundRoute
   LoginRoute: typeof LoginRoute
   MyFlightsRoute: typeof MyFlightsRoute
+  OverviewRoute: typeof OverviewRoute
   VoiceRoute: typeof VoiceRoute
   PartnersSlugRoute: typeof PartnersSlugRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/voice'
       fullPath: '/voice'
       preLoaderRoute: typeof VoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/overview': {
+      id: '/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof OverviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-flights': {
@@ -305,6 +325,7 @@ const rootRouteChildren: RootRouteChildren = {
   GroundRoute: GroundRoute,
   LoginRoute: LoginRoute,
   MyFlightsRoute: MyFlightsRoute,
+  OverviewRoute: OverviewRoute,
   VoiceRoute: VoiceRoute,
   PartnersSlugRoute: PartnersSlugRoute,
   PartnersIndexRoute: PartnersIndexRoute,
@@ -314,13 +335,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

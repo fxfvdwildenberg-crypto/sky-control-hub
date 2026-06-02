@@ -61,14 +61,17 @@ function VoicePage() {
 
   const guildId = data?.guildId;
   const myClaim = data?.claims.find((c) => c.discord_id === user?.discordId);
+  const canClaimAtc = !!user?.hasAtcRole;
 
   const filtered = useMemo(() => {
     const channels = data?.channels ?? [];
     const q = query.trim().toLowerCase();
-    if (!q) return channels;
     if (mode === "hard") {
-      return channels.filter((c) => frequencyOf(c.name).toLowerCase().includes(q));
+      // HARD: nothing visible until query matches exact frequency
+      if (!q) return [];
+      return channels.filter((c) => frequencyOf(c.name).toLowerCase() === q);
     }
+    if (!q) return channels;
     return channels.filter((c) => c.name.toLowerCase().includes(q));
   }, [data, query, mode]);
 
@@ -139,7 +142,9 @@ function VoicePage() {
 
       {!isLoading && data && filtered.length === 0 && (
         <div className="rounded-xl border border-border bg-card p-12 text-center text-muted-foreground">
-          No voice channels match your search.
+          {mode === "hard"
+            ? "Hard mode: type the exact frequency (e.g. 362.372) to reveal a channel."
+            : "No voice channels match your search."}
         </div>
       )}
 
@@ -210,7 +215,7 @@ function VoicePage() {
                   <Button size="sm" variant="outline" onClick={() => releaseMut.mutate()} className="gap-1.5">
                     <X className="h-3.5 w-3.5" /> Release
                   </Button>
-                ) : (
+                ) : canClaimAtc ? (
                   <Button
                     size="sm"
                     variant="outline"
@@ -220,7 +225,7 @@ function VoicePage() {
                   >
                     <Radar className="h-3.5 w-3.5" /> {claim ? "Claimed" : "Claim ATC"}
                   </Button>
-                )}
+                ) : null}
               </div>
             </div>
           );

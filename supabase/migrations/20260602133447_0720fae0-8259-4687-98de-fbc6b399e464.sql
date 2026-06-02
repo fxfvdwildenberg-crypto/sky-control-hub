@@ -1,0 +1,1 @@
+ALTER TABLE public.ground_requests ADD COLUMN IF NOT EXISTS denied_at timestamptz;

@@ -1,13 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Plane, Trash2, FileText } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Plane, Trash2, FileText, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { useFlightStore, STATUS_META, APPROVAL_META, emergencyFor, type FlightPlan, type FlightStatus } from "@/lib/flight-store";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { updateOwnFlightPlan, deleteOwnFlightPlan } from "@/lib/flight.functions";
+import { listGroundRequests } from "@/lib/ground.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertTriangle } from "lucide-react";
 
@@ -80,6 +83,16 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
   const { data: user } = useCurrentUser();
   const update = useServerFn(updateOwnFlightPlan);
   const remove = useServerFn(deleteOwnFlightPlan);
+  const listGround = useServerFn(listGroundRequests);
+  const { data: groundReqs = [] } = useQuery({
+    queryKey: ["ground-requests"],
+    queryFn: () => listGround() as Promise<Array<{ id: string; callsign: string; airport: string; gate: string; services: string[]; status: string; crew_username: string | null }>>,
+    refetchInterval: 5000,
+  });
+  const myGround = useMemo(
+    () => groundReqs.filter((g) => g.callsign.toUpperCase() === flight.callsign.toUpperCase()),
+    [groundReqs, flight.callsign],
+  );
   const [squawk, setSquawk] = useState(flight.squawk);
   const isOwner = !!user && flight.filerDiscordId === user.discordId;
   const isDenied = flight.approvalStatus === "denied";
@@ -185,6 +198,26 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
       )}
       {!isApproved && !isDenied && isOwner && (
         <p className="mt-2 text-[11px] text-muted-foreground">Squawk stays 1000 until ATC approves your plan.</p>
+      )}
+
+      {myGround.length > 0 && (
+        <div className="mt-3 rounded-md border border-border bg-muted/30 p-2">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+            <Wrench className="h-3 w-3" /> Ground requests for {flight.callsign}
+          </div>
+          <div className="space-y-1.5">
+            {myGround.map((g) => (
+              <div key={g.id} className="flex flex-wrap items-center gap-1.5 text-xs">
+                <Badge variant="outline" className="text-[10px]">{g.status.replace("_", " ")}</Badge>
+                <span className="text-muted-foreground">{g.airport} · Gate {g.gate}</span>
+                <span className="flex flex-wrap gap-1">
+                  {g.services.map((s) => <Badge key={s} variant="secondary" className="text-[10px]">{s}</Badge>)}
+                </span>
+                {g.crew_username && <span className="text-muted-foreground">· crew: {g.crew_username}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
