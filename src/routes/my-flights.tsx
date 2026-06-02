@@ -199,6 +199,26 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
       {!isApproved && !isDenied && isOwner && (
         <p className="mt-2 text-[11px] text-muted-foreground">Squawk stays 1000 until ATC approves your plan.</p>
       )}
+
+      {myGround.length > 0 && (
+        <div className="mt-3 rounded-md border border-border bg-muted/30 p-2">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+            <Wrench className="h-3 w-3" /> Ground requests for {flight.callsign}
+          </div>
+          <div className="space-y-1.5">
+            {myGround.map((g) => (
+              <div key={g.id} className="flex flex-wrap items-center gap-1.5 text-xs">
+                <Badge variant="outline" className="text-[10px]">{g.status.replace("_", " ")}</Badge>
+                <span className="text-muted-foreground">{g.airport} · Gate {g.gate}</span>
+                <span className="flex flex-wrap gap-1">
+                  {g.services.map((s) => <Badge key={s} variant="secondary" className="text-[10px]">{s}</Badge>)}
+                </span>
+                {g.crew_username && <span className="text-muted-foreground">· crew: {g.crew_username}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
