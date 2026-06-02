@@ -83,6 +83,16 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
   const { data: user } = useCurrentUser();
   const update = useServerFn(updateOwnFlightPlan);
   const remove = useServerFn(deleteOwnFlightPlan);
+  const listGround = useServerFn(listGroundRequests);
+  const { data: groundReqs = [] } = useQuery({
+    queryKey: ["ground-requests"],
+    queryFn: () => listGround() as Promise<Array<{ id: string; callsign: string; airport: string; gate: string; services: string[]; status: string; crew_username: string | null }>>,
+    refetchInterval: 5000,
+  });
+  const myGround = useMemo(
+    () => groundReqs.filter((g) => g.callsign.toUpperCase() === flight.callsign.toUpperCase()),
+    [groundReqs, flight.callsign],
+  );
   const [squawk, setSquawk] = useState(flight.squawk);
   const isOwner = !!user && flight.filerDiscordId === user.discordId;
   const isDenied = flight.approvalStatus === "denied";
