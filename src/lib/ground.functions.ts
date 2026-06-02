@@ -21,12 +21,11 @@ const SERVICES = [
 const db = supabaseAdmin as any;
 
 export const listGroundRequests = createServerFn({ method: "GET" }).handler(async () => {
+  const cutoff = new Date(Date.now() - 10_000).toISOString();
   // delete finished older than 10s
-  await db
-    .from("ground_requests")
-    .delete()
-    .eq("status", "finished")
-    .lt("finished_at", new Date(Date.now() - 10_000).toISOString());
+  await db.from("ground_requests").delete().eq("status", "finished").lt("finished_at", cutoff);
+  // delete denied older than 10s
+  await db.from("ground_requests").delete().eq("status", "denied").lt("denied_at", cutoff);
 
   const { data, error } = await db
     .from("ground_requests")
@@ -101,6 +100,7 @@ export const updateGroundStatus = createServerFn({ method: "POST" })
       if (data.crew_roblox_username) patch.crew_roblox_username = data.crew_roblox_username;
     }
     if (data.status === "finished") patch.finished_at = new Date().toISOString();
+    if (data.status === "denied") patch.denied_at = new Date().toISOString();
 
     const { error } = await db.from("ground_requests").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
