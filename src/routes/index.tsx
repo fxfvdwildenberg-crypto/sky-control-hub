@@ -180,15 +180,16 @@ function FlightRow({ flight, mode }: { flight: FlightPlan; mode: Mode }) {
       to="/atc"
       className="group flex items-center gap-4 rounded-2xl bg-card px-4 py-4 ring-1 ring-border transition hover:ring-primary/50 md:px-6"
     >
-      <div className="w-16 shrink-0 text-lg font-semibold tabular-nums md:w-20 md:text-xl">
-        {flight.eta || "—"}
+      <div className="w-16 shrink-0 text-center md:w-20">
+        <div className="text-lg font-semibold tabular-nums md:text-xl">{flight.cruiseLevel || "—"}</div>
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Level</div>
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-base font-medium">
-          {place} <span className="text-muted-foreground">— {place}</span>
+          {flight.departure} <span className="text-muted-foreground">→</span> {flight.arrival}
         </div>
         <div className="mt-0.5 truncate text-sm text-muted-foreground">
-          {flight.callsign} · {flight.aircraft}
+          {flight.callsign} · {flight.aircraft}{flight.gate ? ` · Gate ${flight.gate}` : ""}
         </div>
       </div>
       <span className={`hidden sm:inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${meta.color}`}>
@@ -198,3 +199,4 @@ function FlightRow({ flight, mode }: { flight: FlightPlan; mode: Mode }) {
     </Link>
   );
 }
+
