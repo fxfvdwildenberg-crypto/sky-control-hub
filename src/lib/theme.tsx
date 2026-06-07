@@ -23,7 +23,7 @@ const STORAGE_KEY = "atc365-theme";
 const PARTNER_KEY = "atc365-partner-theme";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const [theme, setThemeState] = useState<Theme>("light");
   const [partnerTheme, setPartnerTheme] = useState<PartnerTheme>(null);
 
   useEffect(() => {
