@@ -111,13 +111,21 @@ function RootComponent() {
             <div className="flex min-h-screen w-full bg-background">
               <AppSidebar />
               <div className="flex flex-1 flex-col">
-                <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
-                  <SidebarTrigger />
-                  <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">
-                    <span className="h-1.5 w-1.5 rounded-full bg-status-landed animate-pulse" />
-                    Live · ATC Network
-                  </div>
-                  <div className="ml-auto flex items-center gap-3 text-xs font-mono text-muted-foreground">
+                <header className="sticky top-0 z-30 flex h-16 items-center gap-3 bg-sidebar px-4 text-sidebar-foreground shadow-sm">
+                  <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent" />
+                  <Link to="/" className="flex items-center gap-2.5">
+                    <span className="relative flex h-9 w-9 items-center justify-center rounded-full ring-2 ring-accent">
+                      <span className="text-[10px] font-bold tracking-wider text-sidebar-foreground">AMS</span>
+                    </span>
+                    <span className="flex flex-col leading-tight">
+                      <span className="text-sm font-semibold tracking-wide">ATC365</span>
+                      <span className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/60">Schiphol-style ATC</span>
+                    </span>
+                  </Link>
+                  <div className="ml-auto flex items-center gap-4 text-xs font-mono text-sidebar-foreground/70">
+                    <span className="hidden sm:inline-flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> Live
+                    </span>
                     <LiveClock />
                     <ThemeToggle />
                   </div>
@@ -129,6 +137,7 @@ function RootComponent() {
             </div>
             <Toaster />
           </SidebarProvider>
+
         </FlightStoreProvider>
       </ThemeProvider>
     </QueryClientProvider>
