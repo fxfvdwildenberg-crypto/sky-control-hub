@@ -4,6 +4,8 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getAppSession } from "./session.server";
 
 const icao = z.string().trim().regex(/^[A-Z]{4}$/, "4-letter ICAO");
+const hhmm = z.string().trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "HH:MM");
+const ymd = z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD");
 
 const fileSchema = z.object({
   callsign: z.string().trim().min(2).max(8).regex(/^[A-Z0-9]+$/),
@@ -14,6 +16,9 @@ const fileSchema = z.object({
   flightRule: z.enum(["IFR", "VFR"]),
   cruiseLevel: z.string().trim().max(10).regex(/^[A-Z0-9]+$/),
   gate: z.string().trim().max(10),
+  flightDate: ymd.optional().default(""),
+  etd: hhmm.optional().or(z.literal("")).default(""),
+  eta: hhmm.optional().or(z.literal("")).default(""),
   robloxUsername: z.string().trim().min(1).max(32).regex(/^[A-Za-z0-9_]+$/),
   discordUsername: z.string().trim().min(1).max(40),
   copilotDiscordUsername: z.string().trim().max(40).optional().default(""),
@@ -32,9 +37,13 @@ export const fileFlightPlan = createServerFn({ method: "POST" })
       squawk: "1000",
       route: data.route ?? "",
       status: "parked",
+      phase: "on_ground",
       flight_rule: data.flightRule,
       cruise_level: data.cruiseLevel,
       gate: data.gate,
+      flight_date: data.flightDate || null,
+      etd: data.etd || null,
+      eta: data.eta || null,
       filer_discord_id: s.data.discordId,
       filer_username: s.data.username ?? null,
       approval_status: "pending",
@@ -49,6 +58,7 @@ export const fileFlightPlan = createServerFn({ method: "POST" })
 const ownerUpdateSchema = z.object({
   id: z.string().uuid(),
   status: z.enum(["parked", "taxi", "airborne", "landed"]).optional(),
+  phase: z.enum(["departure", "arrival", "on_ground"]).optional(),
   squawk: z.string().regex(/^[0-7]{4}$/).optional(),
 });
 
@@ -70,6 +80,7 @@ export const updateOwnFlightPlan = createServerFn({ method: "POST" })
     }
     const patch: Record<string, unknown> = {};
     if (data.status) patch.status = data.status;
+    if (data.phase) patch.phase = data.phase;
     if (data.squawk) patch.squawk = data.squawk;
     if (Object.keys(patch).length === 0) return { ok: true };
     const { error } = await supabaseAdmin.from("flight_plans").update(patch as never).eq("id", data.id);

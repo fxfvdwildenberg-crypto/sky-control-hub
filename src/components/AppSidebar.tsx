@@ -128,7 +128,7 @@ function UserBlock({ collapsed }: { collapsed: boolean }) {
   if (!user) {
     return (
       <Link to="/login" className="block px-1 py-1">
-        <Button size="sm" variant="outline" className="w-full gap-2">
+        <Button size="sm" className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
           <LogIn className="h-3.5 w-3.5" /> Sign in
         </Button>
       </Link>

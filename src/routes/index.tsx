@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useFlightStore, STATUS_META, type FlightStatus, type FlightPlan } from "@/lib/flight-store";
-import { PlaneTakeoff, PlaneLanding, Search, ChevronRight, Radio } from "lucide-react";
+import { useFlightStore, STATUS_META, type FlightStatus, type FlightPhase, type FlightPlan } from "@/lib/flight-store";
+import { PlaneTakeoff, PlaneLanding, Search, ChevronRight, Radio, Wrench } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -13,14 +13,43 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-type Mode = "departures" | "arrivals";
+type Mode = "departures" | "arrivals" | "onground";
+type DateMode = "today" | "tomorrow" | "custom";
+
+function isoDate(d: Date) {
+  const tz = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - tz).toISOString().slice(0, 10);
+}
 
 function Dashboard() {
   const { flights, atis } = useFlightStore();
-  const [mode, setMode] = useState<Mode>("arrivals");
+  const [mode, setMode] = useState<Mode>("departures");
   const [query, setQuery] = useState("");
+  const [dateMode, setDateMode] = useState<DateMode>("today");
+  const [customDate, setCustomDate] = useState<string>("");
+
+  const today = isoDate(new Date());
+  const tomorrow = isoDate(new Date(Date.now() + 86400000));
+
+  const activeDate =
+    dateMode === "today" ? today : dateMode === "tomorrow" ? tomorrow : customDate;
 
   const filtered = flights.filter((f) => {
+    // Phase / mode filter
+    if (mode === "departures" && f.phase !== "departure") return false;
+    if (mode === "arrivals" && f.phase !== "arrival") return false;
+    if (mode === "onground") {
+      const groundByStatus = f.status === "parked" || f.status === "taxi" || f.status === "landed";
+      if (!(f.phase === "on_ground" || groundByStatus)) return false;
+    }
+    // Date filter — show flights with that date, plus flights with no date when "today" is selected
+    if (activeDate) {
+      if (f.flightDate) {
+        if (f.flightDate !== activeDate) return false;
+      } else if (dateMode !== "today") {
+        return false;
+      }
+    }
     const q = query.trim().toUpperCase();
     if (!q) return true;
     return (
@@ -33,43 +62,50 @@ function Dashboard() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)]">
-      {/* Schiphol-style hero band */}
       <section className="bg-gradient-to-b from-secondary to-background px-4 pb-10 pt-8 md:px-8 md:pt-12">
         <div className="mx-auto max-w-5xl">
-          {/* Pill toggle */}
+          {/* Phase pill toggle */}
           <div className="mx-auto flex w-fit items-center gap-1 rounded-full bg-card p-1 shadow-sm ring-1 ring-border">
-            <button
-              onClick={() => setMode("departures")}
-              className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition ${
-                mode === "departures" ? "bg-primary text-primary-foreground shadow" : "text-foreground/70 hover:text-foreground"
-              }`}
-            >
+            <PillButton active={mode === "departures"} onClick={() => setMode("departures")}>
               <PlaneTakeoff className="h-4 w-4" /> Departures
-            </button>
-            <button
-              onClick={() => setMode("arrivals")}
-              className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition ${
-                mode === "arrivals" ? "bg-primary text-primary-foreground shadow" : "text-foreground/70 hover:text-foreground"
-              }`}
-            >
+            </PillButton>
+            <PillButton active={mode === "arrivals"} onClick={() => setMode("arrivals")}>
               <PlaneLanding className="h-4 w-4" /> Arrivals
-            </button>
+            </PillButton>
+            <PillButton active={mode === "onground"} onClick={() => setMode("onground")}>
+              <Wrench className="h-4 w-4" /> On Ground
+            </PillButton>
           </div>
 
           {/* Day chips */}
           <div className="mx-auto mt-5 flex w-fit flex-wrap items-center justify-center gap-2">
-            <Chip active>Today</Chip>
-            <Chip>Tomorrow</Chip>
-            <Chip>Choose a date</Chip>
+            <Chip active={dateMode === "today"} onClick={() => setDateMode("today")}>Today</Chip>
+            <Chip active={dateMode === "tomorrow"} onClick={() => setDateMode("tomorrow")}>Tomorrow</Chip>
+            <Chip active={dateMode === "custom"} onClick={() => setDateMode("custom")}>
+              {dateMode === "custom" && customDate ? customDate : "Choose a date"}
+            </Chip>
+            {dateMode === "custom" && (
+              <input
+                type="date"
+                value={customDate}
+                min={tomorrow}
+                onChange={(e) => setCustomDate(e.target.value)}
+                className="rounded-full bg-card px-3 py-1.5 text-sm ring-1 ring-border outline-none focus:ring-2 focus:ring-primary"
+              />
+            )}
           </div>
 
-          {/* Big rounded search */}
+          {/* Search */}
           <div className="mx-auto mt-6 max-w-3xl">
             <div className="flex items-center gap-2 rounded-full bg-card pl-6 pr-2 py-2 shadow-md ring-1 ring-border focus-within:ring-2 focus-within:ring-primary">
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={mode === "arrivals" ? "Origin, flight number or airline" : "Destination, flight number or airline"}
+                placeholder={
+                  mode === "arrivals" ? "Origin, flight number or airline"
+                    : mode === "departures" ? "Destination, flight number or airline"
+                      : "Callsign, airport or aircraft"
+                }
                 className="flex-1 bg-transparent py-2 text-base outline-none placeholder:text-muted-foreground"
               />
               <button className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90">
@@ -80,14 +116,16 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* Flight list */}
       <section className="px-4 pb-16 md:px-8">
         <div className="mx-auto max-w-5xl">
           <div className="mb-5">
             <div className="text-sm text-muted-foreground">
-              All {mode === "arrivals" ? "incoming" : "outgoing"} flights from
+              {mode === "arrivals" ? "All incoming flights" : mode === "departures" ? "All outgoing flights" : "All aircraft on the ground"}
+              {" · "}{dateMode === "today" ? "Today" : dateMode === "tomorrow" ? "Tomorrow" : (customDate || "Pick a date")}
             </div>
-            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">All {mode === "arrivals" ? "origins" : "destinations"}</h1>
+            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+              {mode === "arrivals" ? "Arrivals" : mode === "departures" ? "Departures" : "On the ground"}
+            </h1>
           </div>
 
           {/* Status totals */}
@@ -107,11 +145,10 @@ function Dashboard() {
             })}
           </div>
 
-          {/* Rows */}
           <div className="space-y-2">
             {filtered.length === 0 && (
               <div className="rounded-2xl bg-card p-8 text-center text-sm text-muted-foreground ring-1 ring-border">
-                No flights match your search.
+                No flights match your filters.
               </div>
             )}
             {filtered.map((f) => (
@@ -119,7 +156,6 @@ function Dashboard() {
             ))}
           </div>
 
-          {/* ATIS aside */}
           {atis.length > 0 && (
             <div className="mt-10">
               <div className="mb-3 flex items-center justify-between">
@@ -136,9 +172,9 @@ function Dashboard() {
                       <span className="rounded-full bg-primary/10 px-3 py-0.5 text-xs font-medium text-primary">INFO {a.info}</span>
                     </div>
                     <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
-                      <Field label="RWY" value={`${a.departureRunways}/${a.arrivalRunways}`} />
-                      <Field label="Wind" value={a.wind} />
-                      <Field label="QNH" value={a.qnh} />
+                      <InfoField label="RWY" value={`${a.departureRunways}/${a.arrivalRunways}`} />
+                      <InfoField label="Wind" value={a.wind} />
+                      <InfoField label="QNH" value={a.qnh} />
                     </div>
                   </div>
                 ))}
@@ -151,19 +187,34 @@ function Dashboard() {
   );
 }
 
-function Chip({ children, active }: { children: React.ReactNode; active?: boolean }) {
+function PillButton({ active, onClick, children }: { active?: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <span
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition ${
+        active ? "bg-primary text-primary-foreground shadow" : "text-foreground/70 hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Chip({ children, active, onClick }: { children: React.ReactNode; active?: boolean; onClick?: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      type="button"
       className={`cursor-pointer rounded-full px-4 py-1.5 text-sm transition ${
         active ? "bg-primary text-primary-foreground" : "bg-card text-foreground ring-1 ring-border hover:ring-primary/50"
       }`}
     >
       {children}
-    </span>
+    </button>
   );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function InfoField({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
@@ -174,15 +225,18 @@ function Field({ label, value }: { label: string; value: string }) {
 
 function FlightRow({ flight, mode }: { flight: FlightPlan; mode: Mode }) {
   const meta = STATUS_META[flight.status];
-  const place = mode === "arrivals" ? flight.departure : flight.arrival;
+  const time = mode === "arrivals" ? flight.eta : mode === "departures" ? flight.etd : null;
   return (
     <Link
-      to="/atc"
+      to="/flights/$id"
+      params={{ id: flight.id }}
       className="group flex items-center gap-4 rounded-2xl bg-card px-4 py-4 ring-1 ring-border transition hover:ring-primary/50 md:px-6"
     >
       <div className="w-16 shrink-0 text-center md:w-20">
-        <div className="text-lg font-semibold tabular-nums md:text-xl">{flight.cruiseLevel || "—"}</div>
-        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Level</div>
+        <div className="text-lg font-semibold tabular-nums md:text-xl">{time || flight.cruiseLevel || "—"}</div>
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          {mode === "arrivals" ? "ETA" : mode === "departures" ? "ETD" : "Level"}
+        </div>
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-base font-medium">
@@ -190,6 +244,7 @@ function FlightRow({ flight, mode }: { flight: FlightPlan; mode: Mode }) {
         </div>
         <div className="mt-0.5 truncate text-sm text-muted-foreground">
           {flight.callsign} · {flight.aircraft}{flight.gate ? ` · Gate ${flight.gate}` : ""}
+          {flight.flightDate ? ` · ${flight.flightDate}` : ""}
         </div>
       </div>
       <span className={`hidden sm:inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${meta.color}`}>
@@ -200,3 +255,4 @@ function FlightRow({ flight, mode }: { flight: FlightPlan; mode: Mode }) {
   );
 }
 
+export type { FlightPhase };

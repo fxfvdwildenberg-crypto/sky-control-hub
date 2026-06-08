@@ -2,6 +2,7 @@ import * as React from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export type FlightStatus = "parked" | "taxi" | "airborne" | "landed";
+export type FlightPhase = "departure" | "arrival" | "on_ground";
 export type ApprovalStatus = "pending" | "approved" | "denied";
 export type FlightRule = "IFR" | "VFR";
 
@@ -14,9 +15,13 @@ export interface FlightPlan {
   route: string;
   squawk: string;
   status: FlightStatus;
+  phase: FlightPhase;
   flightRule: FlightRule;
   cruiseLevel: string;
   gate: string;
+  flightDate: string | null; // YYYY-MM-DD
+  etd: string | null;        // HH:MM
+  eta: string | null;        // HH:MM
   filerDiscordId: string | null;
   filerUsername: string | null;
   approvalStatus: ApprovalStatus;
@@ -68,9 +73,13 @@ type FlightRow = {
   route: string;
   squawk: string;
   status: FlightStatus;
+  phase?: FlightPhase;
   flight_rule: string;
   cruise_level: string;
   gate: string;
+  flight_date?: string | null;
+  etd?: string | null;
+  eta?: string | null;
   filer_discord_id: string | null;
   filer_username: string | null;
   approval_status: string;
@@ -91,6 +100,12 @@ type AtisRow = {
   updated_at: string;
 };
 
+const trimTime = (t: string | null | undefined): string | null => {
+  if (!t) return null;
+  // postgres time may come back as HH:MM:SS — keep HH:MM
+  return t.slice(0, 5);
+};
+
 const mapFlight = (r: FlightRow): FlightPlan => ({
   id: r.id,
   callsign: r.callsign,
@@ -100,9 +115,13 @@ const mapFlight = (r: FlightRow): FlightPlan => ({
   route: r.route ?? "",
   squawk: r.squawk ?? "",
   status: r.status,
+  phase: (r.phase as FlightPhase) ?? "on_ground",
   flightRule: (r.flight_rule as FlightRule) ?? "IFR",
   cruiseLevel: r.cruise_level ?? "",
   gate: r.gate ?? "",
+  flightDate: r.flight_date ?? null,
+  etd: trimTime(r.etd),
+  eta: trimTime(r.eta),
   filerDiscordId: r.filer_discord_id,
   filerUsername: r.filer_username,
   approvalStatus: (r.approval_status as ApprovalStatus) ?? "pending",
@@ -205,6 +224,7 @@ export function FlightStoreProvider({ children }: { children: React.ReactNode })
       if (patch.route !== undefined) dbPatch.route = patch.route;
       if (patch.squawk !== undefined) dbPatch.squawk = patch.squawk;
       if (patch.status !== undefined) dbPatch.status = patch.status;
+      if (patch.phase !== undefined) dbPatch.phase = patch.phase;
       if (patch.flightRule !== undefined) dbPatch.flight_rule = patch.flightRule;
       if (patch.cruiseLevel !== undefined) dbPatch.cruise_level = patch.cruiseLevel;
       if (patch.gate !== undefined) dbPatch.gate = patch.gate;
@@ -250,6 +270,12 @@ export const STATUS_META: Record<FlightStatus, { label: string; color: string; d
   taxi: { label: "Taxi", color: "text-status-taxi border-status-taxi/40 bg-status-taxi/10", dot: "bg-status-taxi" },
   airborne: { label: "Airborne", color: "text-status-airborne border-status-airborne/40 bg-status-airborne/10", dot: "bg-status-airborne" },
   landed: { label: "Landed", color: "text-status-landed border-status-landed/40 bg-status-landed/10", dot: "bg-status-landed" },
+};
+
+export const PHASE_META: Record<FlightPhase, { label: string }> = {
+  departure: { label: "Departure" },
+  arrival: { label: "Arrival" },
+  on_ground: { label: "On Ground" },
 };
 
 export const APPROVAL_META: Record<ApprovalStatus, { label: string; className: string }> = {

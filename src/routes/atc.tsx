@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useFlightStore, STATUS_META, APPROVAL_META, emergencyFor, type FlightStatus, type FlightPlan } from "@/lib/flight-store";
+import { useFlightStore, STATUS_META, APPROVAL_META, emergencyFor, type FlightStatus, type FlightPhase, type FlightPlan } from "@/lib/flight-store";
 import { decideFlightPlan } from "@/lib/flight.functions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -173,6 +173,14 @@ function FlightRow({
               <SelectItem value="taxi">Taxi</SelectItem>
               <SelectItem value="airborne">Airborne</SelectItem>
               <SelectItem value="landed">Landed</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={flight.phase} onValueChange={(v) => { onUpdate(flight.id, { phase: v as FlightPhase }); }}>
+            <SelectTrigger className="h-8 w-[120px] text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="departure">Departure</SelectItem>
+              <SelectItem value="arrival">Arrival</SelectItem>
+              <SelectItem value="on_ground">On Ground</SelectItem>
             </SelectContent>
           </Select>
         </div>

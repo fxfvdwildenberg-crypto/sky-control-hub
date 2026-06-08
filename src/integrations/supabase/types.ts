@@ -86,11 +86,15 @@ export type Database = {
           cruise_level: string
           departure: string
           discord_username: string
+          eta: string | null
+          etd: string | null
           filer_discord_id: string | null
           filer_username: string | null
+          flight_date: string | null
           flight_rule: string
           gate: string
           id: string
+          phase: string
           roblox_username: string
           route: string
           squawk: string
@@ -108,11 +112,15 @@ export type Database = {
           cruise_level?: string
           departure: string
           discord_username?: string
+          eta?: string | null
+          etd?: string | null
           filer_discord_id?: string | null
           filer_username?: string | null
+          flight_date?: string | null
           flight_rule?: string
           gate?: string
           id?: string
+          phase?: string
           roblox_username?: string
           route?: string
           squawk?: string
@@ -130,11 +138,15 @@ export type Database = {
           cruise_level?: string
           departure?: string
           discord_username?: string
+          eta?: string | null
+          etd?: string | null
           filer_discord_id?: string | null
           filer_username?: string | null
+          flight_date?: string | null
           flight_rule?: string
           gate?: string
           id?: string
+          phase?: string
           roblox_username?: string
           route?: string
           squawk?: string
