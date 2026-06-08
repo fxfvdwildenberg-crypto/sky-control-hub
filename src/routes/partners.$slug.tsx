@@ -128,10 +128,13 @@ function PartnerDashboard() {
     } catch (e) { toast.error((e as Error).message); }
   };
 
+  // Only force the partner colors when NOT applied site-wide; once site-wide is on,
+  // the global theme already takes care of bg/text and we let it through.
+  const sitewide = partnerTheme?.slug === partner.slug;
   return (
     <div
       className="min-h-screen"
-      style={{ background: theme.bg ?? undefined, color: theme.text ?? undefined }}
+      style={sitewide ? undefined : { background: theme.bg ?? undefined, color: theme.text ?? undefined }}
     >
       <div className="container mx-auto max-w-5xl px-4 py-6">
         {/* Top bar */}

@@ -21,6 +21,7 @@ import { Route as AtcRouteImport } from './routes/atc'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as PartnersSlugRouteImport } from './routes/partners.$slug'
+import { Route as FlightsIdRouteImport } from './routes/flights.$id'
 import { Route as ApiPublicDiscordLoginRouteImport } from './routes/api/public/discord/login'
 import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/public/discord/callback'
 
@@ -84,6 +85,11 @@ const PartnersSlugRoute = PartnersSlugRouteImport.update({
   path: '/partners/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FlightsIdRoute = FlightsIdRouteImport.update({
+  id: '/flights/$id',
+  path: '/flights/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDiscordLoginRoute = ApiPublicDiscordLoginRouteImport.update({
   id: '/api/public/discord/login',
   path: '/api/public/discord/login',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/my-flights': typeof MyFlightsRoute
   '/overview': typeof OverviewRoute
   '/voice': typeof VoiceRoute
+  '/flights/$id': typeof FlightsIdRoute
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners/': typeof PartnersIndexRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/my-flights': typeof MyFlightsRoute
   '/overview': typeof OverviewRoute
   '/voice': typeof VoiceRoute
+  '/flights/$id': typeof FlightsIdRoute
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners': typeof PartnersIndexRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/my-flights': typeof MyFlightsRoute
   '/overview': typeof OverviewRoute
   '/voice': typeof VoiceRoute
+  '/flights/$id': typeof FlightsIdRoute
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners/': typeof PartnersIndexRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/my-flights'
     | '/overview'
     | '/voice'
+    | '/flights/$id'
     | '/partners/$slug'
     | '/partners/'
     | '/api/public/discord/callback'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
     | '/my-flights'
     | '/overview'
     | '/voice'
+    | '/flights/$id'
     | '/partners/$slug'
     | '/partners'
     | '/api/public/discord/callback'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/my-flights'
     | '/overview'
     | '/voice'
+    | '/flights/$id'
     | '/partners/$slug'
     | '/partners/'
     | '/api/public/discord/callback'
@@ -207,6 +219,7 @@ export interface RootRouteChildren {
   MyFlightsRoute: typeof MyFlightsRoute
   OverviewRoute: typeof OverviewRoute
   VoiceRoute: typeof VoiceRoute
+  FlightsIdRoute: typeof FlightsIdRoute
   PartnersSlugRoute: typeof PartnersSlugRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
   ApiPublicDiscordCallbackRoute: typeof ApiPublicDiscordCallbackRoute
@@ -299,6 +312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartnersSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/flights/$id': {
+      id: '/flights/$id'
+      path: '/flights/$id'
+      fullPath: '/flights/$id'
+      preLoaderRoute: typeof FlightsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/discord/login': {
       id: '/api/public/discord/login'
       path: '/api/public/discord/login'
@@ -327,6 +347,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyFlightsRoute: MyFlightsRoute,
   OverviewRoute: OverviewRoute,
   VoiceRoute: VoiceRoute,
+  FlightsIdRoute: FlightsIdRoute,
   PartnersSlugRoute: PartnersSlugRoute,
   PartnersIndexRoute: PartnersIndexRoute,
   ApiPublicDiscordCallbackRoute: ApiPublicDiscordCallbackRoute,

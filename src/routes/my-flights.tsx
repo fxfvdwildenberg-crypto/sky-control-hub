@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Plane, Trash2, FileText, Wrench } from "lucide-react";
 import { toast } from "sonner";
-import { useFlightStore, STATUS_META, APPROVAL_META, emergencyFor, type FlightPlan, type FlightStatus } from "@/lib/flight-store";
+import { useFlightStore, STATUS_META, APPROVAL_META, PHASE_META, emergencyFor, type FlightPlan, type FlightStatus, type FlightPhase } from "@/lib/flight-store";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { updateOwnFlightPlan, deleteOwnFlightPlan } from "@/lib/flight.functions";
 import { listGroundRequests } from "@/lib/ground.functions";
@@ -110,6 +110,13 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
     } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
   };
 
+  const onPhase = async (v: string) => {
+    try {
+      await update({ data: { id: flight.id, phase: v as FlightPhase } });
+      toast.success(`${flight.callsign} → ${PHASE_META[v as FlightPhase].label}`);
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+  };
+
   const saveSquawk = async () => {
     if (squawk === flight.squawk) return;
     if (!/^[0-7]{4}$/.test(squawk)) { toast.error("Squawk must be 4 digits 0-7"); return; }
@@ -144,6 +151,9 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
             <div className="font-mono text-sm font-semibold tracking-wider">{flight.callsign} <span className="text-muted-foreground">· {flight.aircraft}</span></div>
             <div className="font-mono text-xs text-muted-foreground">
               {flight.departure} → {flight.arrival} · {flight.flightRule} · {flight.cruiseLevel || "—"} · Gate {flight.gate || "—"}
+            </div>
+            <div className="font-mono text-[10px] text-muted-foreground">
+              {flight.flightDate || "no date"} · ETD {flight.etd || "—"} · ETA {flight.eta || "—"}
             </div>
           </div>
         </div>
@@ -182,6 +192,18 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
               <SelectItem value="taxi">Taxi</SelectItem>
               <SelectItem value="airborne">Airborne</SelectItem>
               <SelectItem value="landed">Landed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] font-mono uppercase text-muted-foreground mr-1">Phase</span>
+          <Select value={flight.phase} onValueChange={onPhase} disabled={!canEditStatus}>
+            <SelectTrigger className="h-8 w-[125px] text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="departure">Departure</SelectItem>
+              <SelectItem value="arrival">Arrival</SelectItem>
+              <SelectItem value="on_ground">On Ground</SelectItem>
             </SelectContent>
           </Select>
         </div>
