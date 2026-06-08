@@ -22,6 +22,9 @@ export const Route = createFileRoute("/flight-plan")({
 });
 
 const icao = z.string().trim().regex(/^[A-Z]{4}$/, "4-letter ICAO");
+const hhmm = z.string().trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "HH:MM");
+const ymd = z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/, "Date required");
+
 const schema = z.object({
   callsign: z.string().trim().min(2).max(8).regex(/^[A-Z0-9]+$/, "A-Z, 0-9"),
   aircraft: z.string().trim().min(2).max(8).regex(/^[A-Z0-9]+$/, "A-Z, 0-9"),
@@ -31,12 +34,20 @@ const schema = z.object({
   flightRule: z.enum(["IFR", "VFR"]),
   cruiseLevel: z.string().trim().min(2).max(10).regex(/^[A-Z0-9]+$/, "e.g. FL350"),
   gate: z.string().trim().min(1).max(10, "Max 10 chars"),
+  flightDate: ymd,
+  etd: hhmm,
+  eta: hhmm,
   robloxUsername: z.string().trim().min(1).max(32).regex(/^[A-Za-z0-9_]+$/, "Roblox letters/digits/_"),
   discordUsername: z.string().trim().min(1).max(40, "Required"),
   copilotDiscordUsername: z.string().trim().max(40).optional().default(""),
 });
 
 const UPPER_KEYS = new Set(["callsign", "aircraft", "departure", "arrival", "cruiseLevel", "gate", "route"]);
+
+function todayISO() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+}
 
 function FlightPlanPage() {
   const navigate = useNavigate();
@@ -47,6 +58,7 @@ function FlightPlanPage() {
     callsign: "", aircraft: "", departure: "", arrival: "",
     route: "", flightRule: "IFR" as "IFR" | "VFR",
     cruiseLevel: "", gate: "",
+    flightDate: todayISO(), etd: "", eta: "",
     robloxUsername: "", discordUsername: "", copilotDiscordUsername: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -109,6 +121,9 @@ function FlightPlanPage() {
           <Field label="Arrival (ICAO)" error={errors.arrival}>
             <Input value={form.arrival} onChange={(e) => set("arrival", e.target.value)} placeholder="KJFK" maxLength={4} className="font-mono uppercase tracking-wider" />
           </Field>
+          <Field label="Flight Date" error={errors.flightDate}>
+            <Input type="date" value={form.flightDate} min={todayISO()} onChange={(e) => set("flightDate", e.target.value)} />
+          </Field>
           <Field label="Flight Rule">
             <Select value={form.flightRule} onValueChange={(v) => set("flightRule", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -117,6 +132,12 @@ function FlightPlanPage() {
                 <SelectItem value="VFR">VFR</SelectItem>
               </SelectContent>
             </Select>
+          </Field>
+          <Field label="Expected Departure (HH:MM)" error={errors.etd}>
+            <Input type="time" value={form.etd} onChange={(e) => set("etd", e.target.value)} className="font-mono" />
+          </Field>
+          <Field label="Expected Arrival (HH:MM)" error={errors.eta}>
+            <Input type="time" value={form.eta} onChange={(e) => set("eta", e.target.value)} className="font-mono" />
           </Field>
           <Field label="Cruise Level" error={errors.cruiseLevel}>
             <Input value={form.cruiseLevel} onChange={(e) => set("cruiseLevel", e.target.value)} placeholder="FL350" maxLength={10} className="font-mono uppercase tracking-wider" />
