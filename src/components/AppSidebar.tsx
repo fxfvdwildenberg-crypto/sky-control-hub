@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon, Handshake, Wrench, ClipboardList } from "lucide-react";
+import logoAsset from "@/assets/atc365-logo.png.asset.json";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { logout } from "@/lib/auth.functions";
