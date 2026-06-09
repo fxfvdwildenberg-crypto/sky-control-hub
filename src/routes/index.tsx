@@ -4,6 +4,7 @@ import { useFlightStore, STATUS_META, type FlightStatus, type FlightPhase, type 
 import { PlaneTakeoff, PlaneLanding, Search, ChevronRight, Radio, Wrench } from "lucide-react";
 import skylineAsset from "@/assets/city-skyline.png.asset.json";
 import towerAsset from "@/assets/tower-night.png.asset.json";
+import { NetworkGallery } from "@/components/NetworkGallery";
 
 export const Route = createFileRoute("/")({
   head: () => ({
