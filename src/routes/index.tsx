@@ -2,6 +2,8 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useFlightStore, STATUS_META, type FlightStatus, type FlightPhase, type FlightPlan } from "@/lib/flight-store";
 import { PlaneTakeoff, PlaneLanding, Search, ChevronRight, Radio, Wrench } from "lucide-react";
+import skylineAsset from "@/assets/city-skyline.png.asset.json";
+import towerAsset from "@/assets/tower-night.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
