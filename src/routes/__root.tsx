@@ -16,6 +16,7 @@ import { FlightStoreProvider } from "@/lib/flight-store";
 import { ThemeProvider } from "@/lib/theme";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Toaster } from "@/components/ui/sonner";
+import { InstallAppButton } from "@/components/InstallAppButton";
 
 function NotFoundComponent() {
   return (
@@ -78,7 +79,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d029ab2f-fc63-4944-9c6d-5ed4babc42e4/id-preview-7fda8379--b5e3ec4a-3b89-4570-8f36-44e762055841.lovable.app-1778563103913.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d029ab2f-fc63-4944-9c6d-5ed4babc42e4/id-preview-7fda8379--b5e3ec4a-3b89-4570-8f36-44e762055841.lovable.app-1778563103913.png" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icon-512.png" },
+      { rel: "icon", href: "/icon-512.png", type: "image/png" },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -122,6 +128,7 @@ function RootComponent() {
                       <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> Live
                     </span>
                     <LiveClock />
+                    <InstallAppButton />
                     <ThemeToggle />
                   </div>
                 </header>
