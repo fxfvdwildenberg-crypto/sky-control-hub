@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon, Handshake, Wrench, ClipboardList } from "lucide-react";
+import logoAsset from "@/assets/atc365-logo.png.asset.json";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { logout } from "@/lib/auth.functions";
@@ -69,8 +70,8 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-2">
-          <div className="relative flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-primary">
-            <Plane className="h-4 w-4 -rotate-45" />
+          <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-md bg-primary/15">
+            <img src={logoAsset.url} alt="ATC365" className="h-full w-full object-cover" />
           </div>
           {!collapsed && (
             <div className="flex flex-col leading-tight">
