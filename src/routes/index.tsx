@@ -64,6 +64,17 @@ function Dashboard() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)]">
+      <div className="relative h-48 w-full overflow-hidden md:h-64">
+        <img src={skylineAsset.url} alt="City skyline at dusk" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={towerAsset.url} alt="ATC tower at night" className="absolute bottom-0 right-0 h-full w-1/3 object-cover opacity-80 mix-blend-screen md:w-1/4" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+        <div className="relative z-10 mx-auto flex h-full max-w-5xl items-end px-4 pb-4 md:px-8">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-4xl">Live flight operations</h1>
+            <p className="text-xs text-muted-foreground md:text-sm">Real-time departures, arrivals, and ground movement across the network.</p>
+          </div>
+        </div>
+      </div>
       <section className="bg-gradient-to-b from-secondary to-background px-4 pb-10 pt-8 md:px-8 md:pt-12">
         <div className="mx-auto max-w-5xl">
           {/* Phase pill toggle */}
