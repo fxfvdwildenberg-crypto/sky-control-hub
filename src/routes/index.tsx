@@ -196,6 +196,7 @@ function Dashboard() {
           )}
         </div>
       </section>
+      <NetworkGallery />
     </div>
   );
 }
