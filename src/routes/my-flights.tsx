@@ -1,16 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import { Plane, Trash2, FileText, Wrench } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plane, Trash2, FileText, Wrench, Ticket as TicketIcon, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useFlightStore, STATUS_META, APPROVAL_META, PHASE_META, emergencyFor, type FlightPlan, type FlightStatus, type FlightPhase } from "@/lib/flight-store";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { updateOwnFlightPlan, deleteOwnFlightPlan } from "@/lib/flight.functions";
 import { listGroundRequests } from "@/lib/ground.functions";
+import { listAllTickets, setTicketsEnabled, cancelTicket, type Ticket } from "@/lib/ticket.functions";
+import { useRealtimeInvalidate } from "@/lib/use-realtime";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertTriangle } from "lucide-react";
 
