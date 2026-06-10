@@ -178,9 +178,14 @@ function Dashboard() {
                 No flights match your filters.
               </div>
             )}
-            {filtered.map((f) => (
-              <FlightRow key={f.id} flight={f} mode={mode} />
-            ))}
+            {filtered.map((f) => {
+              const userTicket = !!user && tickets.some((t) => t.flight_plan_id === f.id && t.passenger_discord_id === user.discordId);
+              const isOwn = !!user && f.filerDiscordId === user.discordId;
+              const showGetTicket = mode === "onground" && f.ticketsEnabled && !isOwn && !userTicket;
+              return (
+                <FlightRow key={f.id} flight={f} mode={mode} userTicket={userTicket} showGetTicket={showGetTicket} />
+              );
+            })}
           </div>
 
           {atis.length > 0 && (
