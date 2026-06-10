@@ -35,6 +35,14 @@ function Dashboard() {
   const [query, setQuery] = useState("");
   const [dateMode, setDateMode] = useState<DateMode>("today");
   const [customDate, setCustomDate] = useState<string>("");
+  const { data: user } = useCurrentUser();
+  const listTickets = useServerFn(listAllTickets);
+  useRealtimeInvalidate("tickets", [["tickets"]]);
+  const { data: tickets = [] } = useQuery({
+    queryKey: ["tickets"],
+    queryFn: () => listTickets(),
+    refetchInterval: 20000,
+  });
 
   const today = isoDate(new Date());
   const tomorrow = isoDate(new Date(Date.now() + 86400000));
