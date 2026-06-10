@@ -12,6 +12,7 @@ import {
   GROUND_SERVICES,
 } from "@/lib/ground.functions";
 import { useCurrentUser } from "@/lib/use-current-user";
+import { useRealtimeInvalidate } from "@/lib/use-realtime";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -254,6 +255,9 @@ function RequestCard({
           )}
           {role === "pilot" && req.pilot_discord_id === discordId && (
             <Button size="sm" variant="outline" onClick={remove} className="gap-1"><Trash2 className="h-3.5 w-3.5" />Cancel</Button>
+          )}
+          {role === "crew" && (
+            <Button size="sm" variant="outline" onClick={remove} className="gap-1 text-destructive border-destructive/40 hover:bg-destructive/10"><Trash2 className="h-3.5 w-3.5" />Delete</Button>
           )}
           <Button size="sm" variant="ghost" onClick={() => setOpen((o) => !o)}>{open ? "Hide chat" : "Chat"}</Button>
         </div>
