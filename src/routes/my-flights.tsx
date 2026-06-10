@@ -94,8 +94,27 @@ function MyFlightsPage() {
             You haven't filed any flight plans yet.
           </div>
         )}
-        {mine.map((f) => <MyFlightRow key={f.id} flight={f} />)}
+        {mine.map((f) => <MyFlightRow key={f.id} flight={f} tickets={tickets} />)}
       </div>
+
+      {passengerFlights.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-mono uppercase tracking-[0.15em] text-muted-foreground">My booked tickets</h2>
+          {passengerFlights.map((f) => (
+            <Link key={f.id} to="/flights/$id" params={{ id: f.id }}
+              className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary/40">
+              <div className="flex items-center gap-3">
+                <TicketIcon className="h-5 w-5 text-primary" />
+                <div>
+                  <div className="font-mono text-sm font-semibold">{f.callsign} · {f.departure} → {f.arrival}</div>
+                  <div className="font-mono text-xs text-muted-foreground">{f.flightDate || "no date"} · ETD {f.etd || "—"}</div>
+                </div>
+              </div>
+              <Badge className="bg-status-landed/20 text-status-landed border-status-landed/40">Ticket bought</Badge>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
