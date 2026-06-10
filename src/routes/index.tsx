@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { useFlightStore, STATUS_META, type FlightStatus, type FlightPhase, type FlightPlan } from "@/lib/flight-store";
-import { PlaneTakeoff, PlaneLanding, Search, ChevronRight, Radio, Wrench } from "lucide-react";
+import { PlaneTakeoff, PlaneLanding, Search, ChevronRight, Radio, Wrench, Ticket as TicketIcon } from "lucide-react";
 import skylineAsset from "@/assets/city-skyline.png.asset.json";
 import towerAsset from "@/assets/tower-night.png.asset.json";
 import { NetworkGallery } from "@/components/NetworkGallery";
+import { listAllTickets } from "@/lib/ticket.functions";
+import { useCurrentUser } from "@/lib/use-current-user";
+import { useRealtimeInvalidate } from "@/lib/use-realtime";
 
 export const Route = createFileRoute("/")({
   head: () => ({
