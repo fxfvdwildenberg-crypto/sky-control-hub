@@ -99,6 +99,7 @@ export type Database = {
           route: string
           squawk: string
           status: Database["public"]["Enums"]["flight_status"]
+          tickets_enabled: boolean
           updated_at: string
         }
         Insert: {
@@ -125,6 +126,7 @@ export type Database = {
           route?: string
           squawk?: string
           status?: Database["public"]["Enums"]["flight_status"]
+          tickets_enabled?: boolean
           updated_at?: string
         }
         Update: {
@@ -151,6 +153,7 @@ export type Database = {
           route?: string
           squawk?: string
           status?: Database["public"]["Enums"]["flight_status"]
+          tickets_enabled?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -352,6 +355,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      tickets: {
+        Row: {
+          created_at: string
+          flight_plan_id: string
+          id: string
+          passenger_discord_id: string
+          passenger_discord_username: string
+          passenger_roblox_username: string
+          seat: string | null
+        }
+        Insert: {
+          created_at?: string
+          flight_plan_id: string
+          id?: string
+          passenger_discord_id: string
+          passenger_discord_username: string
+          passenger_roblox_username: string
+          seat?: string | null
+        }
+        Update: {
+          created_at?: string
+          flight_plan_id?: string
+          id?: string
+          passenger_discord_id?: string
+          passenger_discord_username?: string
+          passenger_roblox_username?: string
+          seat?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_flight_plan_id_fkey"
+            columns: ["flight_plan_id"]
+            isOneToOne: false
+            referencedRelation: "flight_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
