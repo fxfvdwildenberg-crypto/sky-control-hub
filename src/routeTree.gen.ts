@@ -22,6 +22,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as PartnersSlugRouteImport } from './routes/partners.$slug'
 import { Route as FlightsIdRouteImport } from './routes/flights.$id'
+import { Route as FlightsIdTicketRouteImport } from './routes/flights.$id.ticket'
 import { Route as ApiPublicDiscordLoginRouteImport } from './routes/api/public/discord/login'
 import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/public/discord/callback'
 
@@ -90,6 +91,11 @@ const FlightsIdRoute = FlightsIdRouteImport.update({
   path: '/flights/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FlightsIdTicketRoute = FlightsIdTicketRouteImport.update({
+  id: '/ticket',
+  path: '/ticket',
+  getParentRoute: () => FlightsIdRoute,
+} as any)
 const ApiPublicDiscordLoginRoute = ApiPublicDiscordLoginRouteImport.update({
   id: '/api/public/discord/login',
   path: '/api/public/discord/login',
@@ -113,9 +119,10 @@ export interface FileRoutesByFullPath {
   '/my-flights': typeof MyFlightsRoute
   '/overview': typeof OverviewRoute
   '/voice': typeof VoiceRoute
-  '/flights/$id': typeof FlightsIdRoute
+  '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners/': typeof PartnersIndexRoute
+  '/flights/$id/ticket': typeof FlightsIdTicketRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
@@ -130,9 +137,10 @@ export interface FileRoutesByTo {
   '/my-flights': typeof MyFlightsRoute
   '/overview': typeof OverviewRoute
   '/voice': typeof VoiceRoute
-  '/flights/$id': typeof FlightsIdRoute
+  '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners': typeof PartnersIndexRoute
+  '/flights/$id/ticket': typeof FlightsIdTicketRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
@@ -148,9 +156,10 @@ export interface FileRoutesById {
   '/my-flights': typeof MyFlightsRoute
   '/overview': typeof OverviewRoute
   '/voice': typeof VoiceRoute
-  '/flights/$id': typeof FlightsIdRoute
+  '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners/': typeof PartnersIndexRoute
+  '/flights/$id/ticket': typeof FlightsIdTicketRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
 }
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/flights/$id'
     | '/partners/$slug'
     | '/partners/'
+    | '/flights/$id/ticket'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
   fileRoutesByTo: FileRoutesByTo
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/flights/$id'
     | '/partners/$slug'
     | '/partners'
+    | '/flights/$id/ticket'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
   id:
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/flights/$id'
     | '/partners/$slug'
     | '/partners/'
+    | '/flights/$id/ticket'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
   fileRoutesById: FileRoutesById
@@ -219,7 +231,7 @@ export interface RootRouteChildren {
   MyFlightsRoute: typeof MyFlightsRoute
   OverviewRoute: typeof OverviewRoute
   VoiceRoute: typeof VoiceRoute
-  FlightsIdRoute: typeof FlightsIdRoute
+  FlightsIdRoute: typeof FlightsIdRouteWithChildren
   PartnersSlugRoute: typeof PartnersSlugRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
   ApiPublicDiscordCallbackRoute: typeof ApiPublicDiscordCallbackRoute
@@ -319,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FlightsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/flights/$id/ticket': {
+      id: '/flights/$id/ticket'
+      path: '/ticket'
+      fullPath: '/flights/$id/ticket'
+      preLoaderRoute: typeof FlightsIdTicketRouteImport
+      parentRoute: typeof FlightsIdRoute
+    }
     '/api/public/discord/login': {
       id: '/api/public/discord/login'
       path: '/api/public/discord/login'
@@ -336,6 +355,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface FlightsIdRouteChildren {
+  FlightsIdTicketRoute: typeof FlightsIdTicketRoute
+}
+
+const FlightsIdRouteChildren: FlightsIdRouteChildren = {
+  FlightsIdTicketRoute: FlightsIdTicketRoute,
+}
+
+const FlightsIdRouteWithChildren = FlightsIdRoute._addFileChildren(
+  FlightsIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AtcRoute: AtcRoute,
@@ -347,7 +378,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyFlightsRoute: MyFlightsRoute,
   OverviewRoute: OverviewRoute,
   VoiceRoute: VoiceRoute,
-  FlightsIdRoute: FlightsIdRoute,
+  FlightsIdRoute: FlightsIdRouteWithChildren,
   PartnersSlugRoute: PartnersSlugRoute,
   PartnersIndexRoute: PartnersIndexRoute,
   ApiPublicDiscordCallbackRoute: ApiPublicDiscordCallbackRoute,
@@ -356,3 +387,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
