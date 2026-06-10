@@ -47,6 +47,7 @@ type GroundReq = {
 function GroundPage() {
   const { data: user } = useCurrentUser();
   const listFn = useServerFn(listGroundRequests);
+  useRealtimeInvalidate("ground_requests", [["ground-requests"]]);
   const { data: requests = [] } = useQuery({
     queryKey: ["ground-requests"],
     queryFn: () => listFn() as Promise<GroundReq[]>,
