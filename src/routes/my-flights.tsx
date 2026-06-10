@@ -1,16 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import { Plane, Trash2, FileText, Wrench } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plane, Trash2, FileText, Wrench, Ticket as TicketIcon, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useFlightStore, STATUS_META, APPROVAL_META, PHASE_META, emergencyFor, type FlightPlan, type FlightStatus, type FlightPhase } from "@/lib/flight-store";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { updateOwnFlightPlan, deleteOwnFlightPlan } from "@/lib/flight.functions";
 import { listGroundRequests } from "@/lib/ground.functions";
+import { listAllTickets, setTicketsEnabled, cancelTicket, type Ticket } from "@/lib/ticket.functions";
+import { useRealtimeInvalidate } from "@/lib/use-realtime";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertTriangle } from "lucide-react";
 
@@ -27,6 +30,14 @@ export const Route = createFileRoute("/my-flights")({
 function MyFlightsPage() {
   const { flights } = useFlightStore();
   const { data: user, isLoading } = useCurrentUser();
+  const listTickets = useServerFn(listAllTickets);
+  useRealtimeInvalidate("tickets", [["tickets"]]);
+  useRealtimeInvalidate("ground_requests", [["ground-requests"]]);
+  const { data: tickets = [] } = useQuery({
+    queryKey: ["tickets"],
+    queryFn: () => listTickets(),
+    refetchInterval: 15000,
+  });
 
   const mine = useMemo(() => {
     if (!user) return [];
@@ -37,6 +48,16 @@ function MyFlightsPage() {
       return !!copilot && copilot === myDiscordHandle;
     });
   }, [flights, user]);
+
+  // Flights I have tickets for (as passenger)
+  const ticketedFlightIds = useMemo(
+    () => new Set(tickets.filter((t) => t.passenger_discord_id === user?.discordId).map((t) => t.flight_plan_id)),
+    [tickets, user],
+  );
+  const passengerFlights = useMemo(
+    () => flights.filter((f) => ticketedFlightIds.has(f.id) && !mine.some((m) => m.id === f.id)),
+    [flights, ticketedFlightIds, mine],
+  );
 
   if (isLoading) {
     return <div className="px-8 py-12 text-sm text-muted-foreground">Loading…</div>;
@@ -73,16 +94,38 @@ function MyFlightsPage() {
             You haven't filed any flight plans yet.
           </div>
         )}
-        {mine.map((f) => <MyFlightRow key={f.id} flight={f} />)}
+        {mine.map((f) => <MyFlightRow key={f.id} flight={f} tickets={tickets} />)}
       </div>
+
+      {passengerFlights.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-mono uppercase tracking-[0.15em] text-muted-foreground">My booked tickets</h2>
+          {passengerFlights.map((f) => (
+            <Link key={f.id} to="/flights/$id" params={{ id: f.id }}
+              className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary/40">
+              <div className="flex items-center gap-3">
+                <TicketIcon className="h-5 w-5 text-primary" />
+                <div>
+                  <div className="font-mono text-sm font-semibold">{f.callsign} · {f.departure} → {f.arrival}</div>
+                  <div className="font-mono text-xs text-muted-foreground">{f.flightDate || "no date"} · ETD {f.etd || "—"}</div>
+                </div>
+              </div>
+              <Badge className="bg-status-landed/20 text-status-landed border-status-landed/40">Ticket bought</Badge>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function MyFlightRow({ flight }: { flight: FlightPlan }) {
+function MyFlightRow({ flight, tickets }: { flight: FlightPlan; tickets: Ticket[] }) {
   const { data: user } = useCurrentUser();
+  const qc = useQueryClient();
   const update = useServerFn(updateOwnFlightPlan);
   const remove = useServerFn(deleteOwnFlightPlan);
+  const toggleTickets = useServerFn(setTicketsEnabled);
+  const cancelTicketFn = useServerFn(cancelTicket);
   const listGround = useServerFn(listGroundRequests);
   const { data: groundReqs = [] } = useQuery({
     queryKey: ["ground-requests"],
@@ -93,6 +136,10 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
     () => groundReqs.filter((g) => g.callsign.toUpperCase() === flight.callsign.toUpperCase()),
     [groundReqs, flight.callsign],
   );
+  const flightTickets = useMemo(
+    () => tickets.filter((t) => t.flight_plan_id === flight.id),
+    [tickets, flight.id],
+  );
   const [squawk, setSquawk] = useState(flight.squawk);
   const isOwner = !!user && flight.filerDiscordId === user.discordId;
   const isDenied = flight.approvalStatus === "denied";
@@ -102,6 +149,22 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
   const emerg = emergencyFor(flight.squawk);
   const canEditStatus = isOwner && !isDenied;
   const canEditSquawk = isOwner && isApproved;
+
+  const onToggleTickets = async (enabled: boolean) => {
+    try {
+      await toggleTickets({ data: { flightPlanId: flight.id, enabled } });
+      toast.success(enabled ? "Tickets opened" : "Tickets closed");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+  };
+
+  const onRemovePassenger = async (ticketId: string) => {
+    try {
+      await cancelTicketFn({ data: { ticketId } });
+      qc.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success("Passenger removed");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+  };
+
 
   const onStatus = async (v: string) => {
     try {
@@ -220,6 +283,37 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
       )}
       {!isApproved && !isDenied && isOwner && (
         <p className="mt-2 text-[11px] text-muted-foreground">Squawk stays 1000 until ATC approves your plan.</p>
+      )}
+
+      {isOwner && isApproved && (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-muted/30 p-2">
+          <div className="flex items-center gap-2 text-xs">
+            <TicketIcon className="h-4 w-4 text-primary" />
+            <span className="font-medium">Tickets {flight.ticketsEnabled ? "open" : "closed"}</span>
+            <span className="text-muted-foreground">· passengers can {flight.ticketsEnabled ? "book" : "not book"}</span>
+          </div>
+          <Switch checked={flight.ticketsEnabled} onCheckedChange={onToggleTickets} />
+        </div>
+      )}
+
+      {isOwner && flightTickets.length > 0 && (
+        <div className="mt-3 rounded-md border border-border bg-muted/30 p-2">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+            <Users className="h-3 w-3" /> Passengers ({flightTickets.length})
+          </div>
+          <div className="space-y-1.5">
+            {flightTickets.map((t) => (
+              <div key={t.id} className="flex items-center justify-between gap-2 text-xs">
+                <div className="font-mono">
+                  {t.passenger_discord_username} <span className="text-muted-foreground">· Roblox:</span> {t.passenger_roblox_username}
+                </div>
+                <Button size="sm" variant="ghost" className="h-6 px-2 text-destructive hover:bg-destructive/10" onClick={() => onRemovePassenger(t.id)}>
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {myGround.length > 0 && (

@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { useFlightStore, STATUS_META, type FlightStatus, type FlightPhase, type FlightPlan } from "@/lib/flight-store";
-import { PlaneTakeoff, PlaneLanding, Search, ChevronRight, Radio, Wrench } from "lucide-react";
+import { PlaneTakeoff, PlaneLanding, Search, ChevronRight, Radio, Wrench, Ticket as TicketIcon } from "lucide-react";
 import skylineAsset from "@/assets/city-skyline.png.asset.json";
 import towerAsset from "@/assets/tower-night.png.asset.json";
 import { NetworkGallery } from "@/components/NetworkGallery";
+import { listAllTickets } from "@/lib/ticket.functions";
+import { useCurrentUser } from "@/lib/use-current-user";
+import { useRealtimeInvalidate } from "@/lib/use-realtime";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,6 +35,14 @@ function Dashboard() {
   const [query, setQuery] = useState("");
   const [dateMode, setDateMode] = useState<DateMode>("today");
   const [customDate, setCustomDate] = useState<string>("");
+  const { data: user } = useCurrentUser();
+  const listTickets = useServerFn(listAllTickets);
+  useRealtimeInvalidate("tickets", [["tickets"]]);
+  const { data: tickets = [] } = useQuery({
+    queryKey: ["tickets"],
+    queryFn: () => listTickets(),
+    refetchInterval: 20000,
+  });
 
   const today = isoDate(new Date());
   const tomorrow = isoDate(new Date(Date.now() + 86400000));
@@ -165,9 +178,14 @@ function Dashboard() {
                 No flights match your filters.
               </div>
             )}
-            {filtered.map((f) => (
-              <FlightRow key={f.id} flight={f} mode={mode} />
-            ))}
+            {filtered.map((f) => {
+              const userTicket = !!user && tickets.some((t) => t.flight_plan_id === f.id && t.passenger_discord_id === user.discordId);
+              const isOwn = !!user && f.filerDiscordId === user.discordId;
+              const showGetTicket = mode === "onground" && f.ticketsEnabled && !isOwn && !userTicket;
+              return (
+                <FlightRow key={f.id} flight={f} mode={mode} userTicket={userTicket} showGetTicket={showGetTicket} />
+              );
+            })}
           </div>
 
           {atis.length > 0 && (
@@ -238,22 +256,24 @@ function InfoField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function FlightRow({ flight, mode }: { flight: FlightPlan; mode: Mode }) {
+function FlightRow({ flight, mode, userTicket, showGetTicket }: { flight: FlightPlan; mode: Mode; userTicket?: boolean; showGetTicket?: boolean }) {
   const meta = STATUS_META[flight.status];
   const time = mode === "arrivals" ? flight.eta : mode === "departures" ? flight.etd : null;
   return (
-    <Link
-      to="/flights/$id"
-      params={{ id: flight.id }}
-      className="group flex items-center gap-4 rounded-2xl bg-card px-4 py-4 ring-1 ring-border transition hover:ring-primary/50 md:px-6"
-    >
-      <div className="w-16 shrink-0 text-center md:w-20">
+    <div className="group relative flex items-center gap-4 rounded-2xl bg-card px-4 py-4 ring-1 ring-border transition hover:ring-primary/50 md:px-6">
+      <Link
+        to="/flights/$id"
+        params={{ id: flight.id }}
+        className="absolute inset-0 rounded-2xl"
+        aria-label={`Open ${flight.callsign}`}
+      />
+      <div className="relative w-16 shrink-0 text-center md:w-20">
         <div className="text-lg font-semibold tabular-nums md:text-xl">{time || flight.cruiseLevel || "—"}</div>
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
           {mode === "arrivals" ? "ETA" : mode === "departures" ? "ETD" : "Level"}
         </div>
       </div>
-      <div className="min-w-0 flex-1">
+      <div className="relative min-w-0 flex-1">
         <div className="truncate text-base font-medium">
           {flight.departure} <span className="text-muted-foreground">→</span> {flight.arrival}
         </div>
@@ -262,11 +282,25 @@ function FlightRow({ flight, mode }: { flight: FlightPlan; mode: Mode }) {
           {flight.flightDate ? ` · ${flight.flightDate}` : ""}
         </div>
       </div>
-      <span className={`hidden sm:inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${meta.color}`}>
+      {userTicket && (
+        <span className="relative hidden sm:inline-flex items-center gap-1.5 rounded-full bg-status-landed/20 px-3 py-1 text-xs font-medium text-status-landed">
+          <TicketIcon className="h-3 w-3" /> Ticket bought
+        </span>
+      )}
+      {showGetTicket && (
+        <Link
+          to="/flights/$id/ticket"
+          params={{ id: flight.id }}
+          className="relative inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition hover:opacity-90"
+        >
+          <TicketIcon className="h-3.5 w-3.5" /> Get ticket
+        </Link>
+      )}
+      <span className={`relative hidden sm:inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${meta.color}`}>
         <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} /> {meta.label}
       </span>
-      <ChevronRight className="h-5 w-5 text-primary transition group-hover:translate-x-0.5" />
-    </Link>
+      <ChevronRight className="relative h-5 w-5 text-primary transition group-hover:translate-x-0.5" />
+    </div>
   );
 }
 

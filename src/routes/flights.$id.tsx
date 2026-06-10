@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Plane, MapPin, Clock, User, Wrench } from "lucide-react";
+import { ArrowLeft, Plane, MapPin, Clock, User, Wrench, Ticket as TicketIcon, Users } from "lucide-react";
 import { useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useFlightStore, STATUS_META, APPROVAL_META, PHASE_META, emergencyFor } from "@/lib/flight-store";
 import { listGroundRequests } from "@/lib/ground.functions";
+import { listFlightTickets } from "@/lib/ticket.functions";
+import { useCurrentUser } from "@/lib/use-current-user";
+import { useRealtimeInvalidate } from "@/lib/use-realtime";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -22,17 +25,26 @@ function FlightDetail() {
   const { id } = Route.useParams();
   const { flights } = useFlightStore();
   const flight = flights.find((f) => f.id === id);
+  const { data: user } = useCurrentUser();
 
   const listGround = useServerFn(listGroundRequests);
+  const listTickets = useServerFn(listFlightTickets);
+  useRealtimeInvalidate("tickets", [["flight-tickets", id]]);
   const { data: groundReqs = [] } = useQuery({
     queryKey: ["ground-requests"],
     queryFn: () => listGround() as Promise<Array<{ id: string; callsign: string; airport: string; gate: string; services: string[]; status: string; crew_username: string | null }>>,
     refetchInterval: 5000,
   });
+  const { data: tickets = [] } = useQuery({
+    queryKey: ["flight-tickets", id],
+    queryFn: () => listTickets({ data: { flightPlanId: id } }),
+  });
   const related = useMemo(
     () => (flight ? groundReqs.filter((g) => g.callsign.toUpperCase() === flight.callsign.toUpperCase()) : []),
     [groundReqs, flight],
   );
+  const isOwner = !!user && !!flight && flight.filerDiscordId === user.discordId;
+  const myTicket = tickets.find((t) => t.passenger_discord_id === user?.discordId);
 
   if (!flight) {
     return (
@@ -133,6 +145,44 @@ function FlightDetail() {
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {flight.ticketsEnabled && !isOwner && (
+        <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
+          <div className="flex items-center gap-2 text-sm">
+            <TicketIcon className="h-5 w-5 text-primary" />
+            {myTicket ? (
+              <span><Badge className="bg-status-landed/20 text-status-landed border-status-landed/40">Ticket bought</Badge> You're on the passenger list.</span>
+            ) : (
+              <span>Tickets are open for this flight.</span>
+            )}
+          </div>
+          {!myTicket && (
+            <Link to="/flights/$id/ticket" params={{ id: flight.id }}>
+              <Button className="gap-2"><TicketIcon className="h-4 w-4" /> Get ticket</Button>
+            </Link>
+          )}
+        </section>
+      )}
+
+      {isOwner && (
+        <section className="rounded-2xl border border-border bg-card p-4">
+          <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+            <Users className="h-4 w-4" /> Passengers ({tickets.length})
+          </div>
+          {tickets.length === 0 ? (
+            <p className="text-xs text-muted-foreground">No tickets booked yet{flight.ticketsEnabled ? "." : " — open tickets in My Flights to let passengers book."}</p>
+          ) : (
+            <div className="space-y-1.5">
+              {tickets.map((t) => (
+                <div key={t.id} className="flex items-center justify-between rounded-md border border-border bg-muted/30 p-2 text-xs font-mono">
+                  <span>{t.passenger_discord_username} · Roblox: {t.passenger_roblox_username}</span>
+                  <span className="text-muted-foreground">{new Date(t.created_at).toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       )}
     </div>

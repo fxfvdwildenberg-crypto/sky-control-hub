@@ -29,6 +29,7 @@ export interface FlightPlan {
   robloxUsername: string;
   discordUsername: string;
   copilotDiscordUsername: string;
+  ticketsEnabled: boolean;
 }
 
 export const EMERGENCY_SQUAWKS: Record<string, { label: string; short: string }> = {
@@ -87,6 +88,7 @@ type FlightRow = {
   roblox_username?: string;
   discord_username?: string;
   copilot_discord_username?: string;
+  tickets_enabled?: boolean;
 };
 
 type AtisRow = {
@@ -129,6 +131,7 @@ const mapFlight = (r: FlightRow): FlightPlan => ({
   robloxUsername: r.roblox_username ?? "",
   discordUsername: r.discord_username ?? "",
   copilotDiscordUsername: r.copilot_discord_username ?? "",
+  ticketsEnabled: !!r.tickets_enabled,
 });
 
 const mapAtis = (r: AtisRow): AtisEntry => ({
