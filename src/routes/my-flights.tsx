@@ -119,10 +119,13 @@ function MyFlightsPage() {
   );
 }
 
-function MyFlightRow({ flight }: { flight: FlightPlan }) {
+function MyFlightRow({ flight, tickets }: { flight: FlightPlan; tickets: Ticket[] }) {
   const { data: user } = useCurrentUser();
+  const qc = useQueryClient();
   const update = useServerFn(updateOwnFlightPlan);
   const remove = useServerFn(deleteOwnFlightPlan);
+  const toggleTickets = useServerFn(setTicketsEnabled);
+  const cancelTicketFn = useServerFn(cancelTicket);
   const listGround = useServerFn(listGroundRequests);
   const { data: groundReqs = [] } = useQuery({
     queryKey: ["ground-requests"],
@@ -133,6 +136,10 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
     () => groundReqs.filter((g) => g.callsign.toUpperCase() === flight.callsign.toUpperCase()),
     [groundReqs, flight.callsign],
   );
+  const flightTickets = useMemo(
+    () => tickets.filter((t) => t.flight_plan_id === flight.id),
+    [tickets, flight.id],
+  );
   const [squawk, setSquawk] = useState(flight.squawk);
   const isOwner = !!user && flight.filerDiscordId === user.discordId;
   const isDenied = flight.approvalStatus === "denied";
@@ -142,6 +149,22 @@ function MyFlightRow({ flight }: { flight: FlightPlan }) {
   const emerg = emergencyFor(flight.squawk);
   const canEditStatus = isOwner && !isDenied;
   const canEditSquawk = isOwner && isApproved;
+
+  const onToggleTickets = async (enabled: boolean) => {
+    try {
+      await toggleTickets({ data: { flightPlanId: flight.id, enabled } });
+      toast.success(enabled ? "Tickets opened" : "Tickets closed");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+  };
+
+  const onRemovePassenger = async (ticketId: string) => {
+    try {
+      await cancelTicketFn({ data: { ticketId } });
+      qc.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success("Passenger removed");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+  };
+
 
   const onStatus = async (v: string) => {
     try {
