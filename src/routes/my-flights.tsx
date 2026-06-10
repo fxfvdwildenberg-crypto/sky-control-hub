@@ -30,6 +30,14 @@ export const Route = createFileRoute("/my-flights")({
 function MyFlightsPage() {
   const { flights } = useFlightStore();
   const { data: user, isLoading } = useCurrentUser();
+  const listTickets = useServerFn(listAllTickets);
+  useRealtimeInvalidate("tickets", [["tickets"]]);
+  useRealtimeInvalidate("ground_requests", [["ground-requests"]]);
+  const { data: tickets = [] } = useQuery({
+    queryKey: ["tickets"],
+    queryFn: () => listTickets(),
+    refetchInterval: 15000,
+  });
 
   const mine = useMemo(() => {
     if (!user) return [];
@@ -40,6 +48,16 @@ function MyFlightsPage() {
       return !!copilot && copilot === myDiscordHandle;
     });
   }, [flights, user]);
+
+  // Flights I have tickets for (as passenger)
+  const ticketedFlightIds = useMemo(
+    () => new Set(tickets.filter((t) => t.passenger_discord_id === user?.discordId).map((t) => t.flight_plan_id)),
+    [tickets, user],
+  );
+  const passengerFlights = useMemo(
+    () => flights.filter((f) => ticketedFlightIds.has(f.id) && !mine.some((m) => m.id === f.id)),
+    [flights, ticketedFlightIds, mine],
+  );
 
   if (isLoading) {
     return <div className="px-8 py-12 text-sm text-muted-foreground">Loading…</div>;
