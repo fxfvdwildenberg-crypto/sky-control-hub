@@ -285,7 +285,37 @@ function MyFlightRow({ flight, tickets }: { flight: FlightPlan; tickets: Ticket[
         <p className="mt-2 text-[11px] text-muted-foreground">Squawk stays 1000 until ATC approves your plan.</p>
       )}
 
-      {myGround.length > 0 && (
+      {isOwner && isApproved && (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-muted/30 p-2">
+          <div className="flex items-center gap-2 text-xs">
+            <TicketIcon className="h-4 w-4 text-primary" />
+            <span className="font-medium">Tickets {flight.ticketsEnabled ? "open" : "closed"}</span>
+            <span className="text-muted-foreground">· passengers can {flight.ticketsEnabled ? "book" : "not book"}</span>
+          </div>
+          <Switch checked={flight.ticketsEnabled} onCheckedChange={onToggleTickets} />
+        </div>
+      )}
+
+      {isOwner && flightTickets.length > 0 && (
+        <div className="mt-3 rounded-md border border-border bg-muted/30 p-2">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+            <Users className="h-3 w-3" /> Passengers ({flightTickets.length})
+          </div>
+          <div className="space-y-1.5">
+            {flightTickets.map((t) => (
+              <div key={t.id} className="flex items-center justify-between gap-2 text-xs">
+                <div className="font-mono">
+                  {t.passenger_discord_username} <span className="text-muted-foreground">· Roblox:</span> {t.passenger_roblox_username}
+                </div>
+                <Button size="sm" variant="ghost" className="h-6 px-2 text-destructive hover:bg-destructive/10" onClick={() => onRemovePassenger(t.id)}>
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
         <div className="mt-3 rounded-md border border-border bg-muted/30 p-2">
           <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
             <Wrench className="h-3 w-3" /> Ground requests for {flight.callsign}
