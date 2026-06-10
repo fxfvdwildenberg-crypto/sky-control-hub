@@ -316,6 +316,7 @@ function MyFlightRow({ flight, tickets }: { flight: FlightPlan; tickets: Ticket[
         </div>
       )}
 
+      {myGround.length > 0 && (
         <div className="mt-3 rounded-md border border-border bg-muted/30 p-2">
           <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
             <Wrench className="h-3 w-3" /> Ground requests for {flight.callsign}
