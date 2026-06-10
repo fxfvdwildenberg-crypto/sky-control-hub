@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Plane, MapPin, Clock, User, Wrench } from "lucide-react";
+import { ArrowLeft, Plane, MapPin, Clock, User, Wrench, Ticket as TicketIcon, Users } from "lucide-react";
 import { useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useFlightStore, STATUS_META, APPROVAL_META, PHASE_META, emergencyFor } from "@/lib/flight-store";
 import { listGroundRequests } from "@/lib/ground.functions";
+import { listFlightTickets } from "@/lib/ticket.functions";
+import { useCurrentUser } from "@/lib/use-current-user";
+import { useRealtimeInvalidate } from "@/lib/use-realtime";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
