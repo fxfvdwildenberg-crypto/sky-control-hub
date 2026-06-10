@@ -147,6 +147,44 @@ function FlightDetail() {
           </div>
         </section>
       )}
+
+      {flight.ticketsEnabled && !isOwner && (
+        <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
+          <div className="flex items-center gap-2 text-sm">
+            <TicketIcon className="h-5 w-5 text-primary" />
+            {myTicket ? (
+              <span><Badge className="bg-status-landed/20 text-status-landed border-status-landed/40">Ticket bought</Badge> You're on the passenger list.</span>
+            ) : (
+              <span>Tickets are open for this flight.</span>
+            )}
+          </div>
+          {!myTicket && (
+            <Link to="/flights/$id/ticket" params={{ id: flight.id }}>
+              <Button className="gap-2"><TicketIcon className="h-4 w-4" /> Get ticket</Button>
+            </Link>
+          )}
+        </section>
+      )}
+
+      {isOwner && (
+        <section className="rounded-2xl border border-border bg-card p-4">
+          <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+            <Users className="h-4 w-4" /> Passengers ({tickets.length})
+          </div>
+          {tickets.length === 0 ? (
+            <p className="text-xs text-muted-foreground">No tickets booked yet{flight.ticketsEnabled ? "." : " — open tickets in My Flights to let passengers book."}</p>
+          ) : (
+            <div className="space-y-1.5">
+              {tickets.map((t) => (
+                <div key={t.id} className="flex items-center justify-between rounded-md border border-border bg-muted/30 p-2 text-xs font-mono">
+                  <span>{t.passenger_discord_username} · Roblox: {t.passenger_roblox_username}</span>
+                  <span className="text-muted-foreground">{new Date(t.created_at).toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }
