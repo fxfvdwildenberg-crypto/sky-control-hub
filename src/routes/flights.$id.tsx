@@ -25,17 +25,26 @@ function FlightDetail() {
   const { id } = Route.useParams();
   const { flights } = useFlightStore();
   const flight = flights.find((f) => f.id === id);
+  const { data: user } = useCurrentUser();
 
   const listGround = useServerFn(listGroundRequests);
+  const listTickets = useServerFn(listFlightTickets);
+  useRealtimeInvalidate("tickets", [["flight-tickets", id]]);
   const { data: groundReqs = [] } = useQuery({
     queryKey: ["ground-requests"],
     queryFn: () => listGround() as Promise<Array<{ id: string; callsign: string; airport: string; gate: string; services: string[]; status: string; crew_username: string | null }>>,
     refetchInterval: 5000,
   });
+  const { data: tickets = [] } = useQuery({
+    queryKey: ["flight-tickets", id],
+    queryFn: () => listTickets({ data: { flightPlanId: id } }),
+  });
   const related = useMemo(
     () => (flight ? groundReqs.filter((g) => g.callsign.toUpperCase() === flight.callsign.toUpperCase()) : []),
     [groundReqs, flight],
   );
+  const isOwner = !!user && !!flight && flight.filerDiscordId === user.discordId;
+  const myTicket = tickets.find((t) => t.passenger_discord_id === user?.discordId);
 
   if (!flight) {
     return (
