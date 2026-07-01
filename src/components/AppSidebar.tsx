@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon, Handshake, Wrench, ClipboardList } from "lucide-react";
+import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon, Handshake, Wrench, ClipboardList, Shield } from "lucide-react";
 import logoAsset from "@/assets/atc365-logo.png.asset.json";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
@@ -54,6 +54,8 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path));
+  const { data: currentUser } = useCurrentUser();
+  const isOwner = currentUser?.discordId === "1405496423570473011";
 
   const renderItem = (item: { title: string; url: string; icon: typeof Plane }) => (
     <SidebarMenuItem key={item.url}>
@@ -97,6 +99,15 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
+
+        {isOwner && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{renderItem({ title: "Owner", url: "/owner", icon: Shield })}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
