@@ -37,7 +37,7 @@ export const ownerOverview = createServerFn({ method: "GET" }).handler(async () 
 });
 
 const delSchema = z.object({
-  table: z.enum(["flight_plans", "atis", "ground_requests", "atc_claims", "partner_announcements", "partner_messages"]),
+  table: z.enum(["flight_plans", "atis", "ground_requests", "partner_announcements", "partner_messages"]),
   id: z.string().uuid(),
 });
 
