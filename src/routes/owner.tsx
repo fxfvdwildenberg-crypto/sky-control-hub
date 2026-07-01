@@ -116,8 +116,10 @@ function OwnerConsole() {
           <CardHeader><CardTitle>ATC claims</CardTitle></CardHeader>
           <CardContent className="space-y-1 max-h-60 overflow-y-auto">
             {data?.claims.map((c) => (
-              <Row key={c.id} label={`${c.discord_username} · ${c.channel_name}`} sub={new Date(c.created_at).toLocaleString()}
-                onDelete={() => delMut.mutate({ table: "atc_claims", id: c.id })} />
+              <div key={c.channel_id} className="rounded-md border px-3 py-2 text-sm">
+                <div className="font-mono">{c.username} · {c.channel_name}</div>
+                <div className="text-xs text-muted-foreground">{new Date(c.claimed_at).toLocaleString()}</div>
+              </div>
             ))}
             {!data?.claims.length && <Empty />}
           </CardContent>
