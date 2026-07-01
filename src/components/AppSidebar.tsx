@@ -54,6 +54,8 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path));
+  const { data: currentUser } = useCurrentUser();
+  const isOwner = currentUser?.discordId === "1405496423570473011";
 
   const renderItem = (item: { title: string; url: string; icon: typeof Plane }) => (
     <SidebarMenuItem key={item.url}>
