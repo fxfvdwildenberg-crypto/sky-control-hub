@@ -19,7 +19,7 @@ export const ownerOverview = createServerFn({ method: "GET" }).handler(async () 
     supabaseAdmin.from("ground_requests").select("id,callsign,gate,status,created_at").order("created_at", { ascending: false }).limit(100),
     supabaseAdmin.from("partners").select("id,slug,name").order("name"),
     supabaseAdmin.from("tickets").select("id").limit(1),
-    supabaseAdmin.from("atc_claims").select("id,discord_username,channel_name,created_at").order("created_at", { ascending: false }).limit(50),
+    supabaseAdmin.from("atc_claims").select("channel_id,username,channel_name,claimed_at").order("claimed_at", { ascending: false }).limit(50),
   ]);
   return {
     flights: flights.data ?? [],
