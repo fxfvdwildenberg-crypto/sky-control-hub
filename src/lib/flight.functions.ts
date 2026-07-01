@@ -52,6 +52,28 @@ export const fileFlightPlan = createServerFn({ method: "POST" })
       copilot_discord_username: data.copilotDiscordUsername ?? "",
     } as never);
     if (error) throw new Error(error.message);
+
+    // Post departure notification to Discord channel (best-effort)
+    try {
+      const botToken = process.env.DISCORD_BOT_TOKEN;
+      const channelId = "1513951469018021898";
+      if (botToken) {
+        await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bot ${botToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: `Flight **${data.callsign}** is departing from gate **${data.gate}** in **${data.departure}**`,
+            allowed_mentions: { parse: [] },
+          }),
+        });
+      }
+    } catch (e) {
+      console.error("Discord departure post failed", e);
+    }
+
     return { ok: true };
   });
 
