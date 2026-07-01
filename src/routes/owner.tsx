@@ -63,7 +63,7 @@ function OwnerConsole() {
   const { data } = useQuery({ queryKey: ["owner-overview"], queryFn: () => load(), refetchInterval: 15000 });
 
   const delMut = useMutation({
-    mutationFn: (v: { table: "flight_plans" | "atis" | "ground_requests" | "atc_claims" | "partner_announcements" | "partner_messages"; id: string }) => del({ data: v }),
+    mutationFn: (v: { table: "flight_plans" | "atis" | "ground_requests" | "partner_announcements" | "partner_messages"; id: string }) => del({ data: v }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["owner-overview"] }); toast.success("Deleted"); },
     onError: (e: Error) => toast.error(e.message),
   });
