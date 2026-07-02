@@ -394,6 +394,72 @@ export type Database = {
           },
         ]
       }
+      user_profiles: {
+        Row: {
+          avatar: string | null
+          created_at: string
+          discord_id: string
+          earned_today: number
+          earned_today_date: string | null
+          equipped_tag: string | null
+          has_atc_role: boolean
+          last_login_date: string | null
+          login_streak: number
+          tokens: number
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          avatar?: string | null
+          created_at?: string
+          discord_id: string
+          earned_today?: number
+          earned_today_date?: string | null
+          equipped_tag?: string | null
+          has_atc_role?: boolean
+          last_login_date?: string | null
+          login_streak?: number
+          tokens?: number
+          updated_at?: string
+          username?: string
+        }
+        Update: {
+          avatar?: string | null
+          created_at?: string
+          discord_id?: string
+          earned_today?: number
+          earned_today_date?: string | null
+          equipped_tag?: string | null
+          has_atc_role?: boolean
+          last_login_date?: string | null
+          login_streak?: number
+          tokens?: number
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      user_tags: {
+        Row: {
+          acquired_at: string
+          discord_id: string
+          id: string
+          tag: string
+        }
+        Insert: {
+          acquired_at?: string
+          discord_id: string
+          id?: string
+          tag: string
+        }
+        Update: {
+          acquired_at?: string
+          discord_id?: string
+          id?: string
+          tag?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
