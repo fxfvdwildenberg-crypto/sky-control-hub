@@ -163,3 +163,18 @@ function LiveClock() {
   return <span>{z} <span className="text-primary">Z</span></span>;
 }
 
+function ProfileChip() {
+  const { useMyProfile } = require("@/lib/use-my-profile") as typeof import("@/lib/use-my-profile");
+  const { data } = useMyProfile();
+  if (!data) return null;
+  return (
+    <Link to="/profile" className="hidden sm:inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 hover:bg-white/20 transition">
+      <span className="text-primary">◆</span>
+      <span>{data.tier}</span>
+      <span className="opacity-60">·</span>
+      <span>{data.tokens} pts</span>
+    </Link>
+  );
+}
+
+
