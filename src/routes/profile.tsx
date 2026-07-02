@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+
 import { Coins, Flame, LogIn, Sparkles, Tag as TagIcon, Trophy } from "lucide-react";
 import { useMyProfile } from "@/lib/use-my-profile";
 import { equipTag, TIERS } from "@/lib/profile.functions";
