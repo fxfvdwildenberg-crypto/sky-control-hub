@@ -17,6 +17,7 @@ import { ThemeProvider } from "@/lib/theme";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Toaster } from "@/components/ui/sonner";
 import { InstallAppButton } from "@/components/InstallAppButton";
+import { useMyProfile } from "@/lib/use-my-profile";
 
 function NotFoundComponent() {
   return (
@@ -129,7 +130,8 @@ function RootComponent() {
                     <span className="text-sm font-semibold tracking-wide">ATC365</span>
                   </Link>
 
-                  <div className="ml-auto flex items-center gap-4 text-xs font-mono text-sidebar-foreground/70">
+                  <div className="ml-auto flex items-center gap-3 text-xs font-mono text-sidebar-foreground/70">
+                    <ProfileChip />
                     <span className="hidden sm:inline-flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> Live
                     </span>
@@ -161,4 +163,19 @@ function LiveClock() {
   const z = now.toISOString().slice(11, 19);
   return <span>{z} <span className="text-primary">Z</span></span>;
 }
+
+function ProfileChip() {
+  const { data } = useMyProfile();
+  if (!data) return null;
+  return (
+    <Link to="/profile" className="hidden sm:inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 hover:bg-white/20 transition">
+      <span className="text-primary">◆</span>
+      <span>{data.tier}</span>
+      <span className="opacity-60">·</span>
+      <span>{data.tokens} pts</span>
+    </Link>
+  );
+}
+
+
 

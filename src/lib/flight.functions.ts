@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getAppSession } from "./session.server";
+import { awardActionTokens } from "./profile.functions";
 
 const icao = z.string().trim().regex(/^[A-Z]{4}$/, "4-letter ICAO");
 const hhmm = z.string().trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "HH:MM");
@@ -29,7 +30,7 @@ export const fileFlightPlan = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const s = await getAppSession();
     if (!s.data.discordId) throw new Error("Sign in with Discord to file a flight plan");
-    const { error } = await supabaseAdmin.from("flight_plans").insert({
+    const { data: inserted, error } = await supabaseAdmin.from("flight_plans").insert({
       callsign: data.callsign,
       aircraft: data.aircraft,
       departure: data.departure,
@@ -50,14 +51,30 @@ export const fileFlightPlan = createServerFn({ method: "POST" })
       roblox_username: data.robloxUsername,
       discord_username: data.discordUsername,
       copilot_discord_username: data.copilotDiscordUsername ?? "",
-    } as never);
+    } as never).select("id").single();
     if (error) throw new Error(error.message);
 
-    // Post departure notification to Discord channel (best-effort)
+    // Award tokens
+    try { await awardActionTokens(s.data.discordId); } catch (e) { console.error("award tokens failed", e); }
+
+    // Post departure notification to Discord (best-effort)
     try {
       const botToken = process.env.DISCORD_BOT_TOKEN;
       const channelId = "1513951469018021898";
       if (botToken) {
+        const flightId = (inserted as { id: string } | null)?.id;
+        const origin = process.env.APP_URL || "https://atc365.lovable.app";
+        const link = flightId ? `${origin}/flights/${flightId}` : "";
+        const lines = [
+          `# Flight: ${data.callsign} #`,
+          `Going from ${data.departure} to ${data.arrival}`,
+          `expected departure time ${data.etd || "TBA"}`,
+          `expected arrival time ${data.eta || "TBA"}`,
+          `Gate ${data.gate}`,
+          `Pilot ${data.robloxUsername}`,
+        ];
+        if (data.copilotDiscordUsername) lines.push(`Copilot ${data.copilotDiscordUsername}`);
+        if (link) lines.push(`Flight information from website ${link}`);
         await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
           method: "POST",
           headers: {
@@ -65,7 +82,7 @@ export const fileFlightPlan = createServerFn({ method: "POST" })
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            content: `Flight **${data.callsign}** is departing from gate **${data.gate}** in **${data.departure}**`,
+            content: lines.join("\n"),
             allowed_mentions: { parse: [] },
           }),
         });

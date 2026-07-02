@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { PageBanner } from "@/components/PageBanner";
 import bannerAsset from "@/assets/city-skyline.png.asset.json";
-import { Shield, Trash2, KeyRound } from "lucide-react";
+import { Shield, Trash2, KeyRound, Coins } from "lucide-react";
+import { ownerListProfiles, ownerAdjustPoints } from "@/lib/profile.functions";
 
 export const Route = createFileRoute("/owner")({
   head: () => ({
@@ -136,7 +137,50 @@ function OwnerConsole() {
             ))}
           </CardContent>
         </Card>
+        <ProfilesPanel />
       </div>
+    </div>
+  );
+}
+
+function ProfilesPanel() {
+  const listFn = useServerFn(ownerListProfiles);
+  const adjustFn = useServerFn(ownerAdjustPoints);
+  const qc = useQueryClient();
+  const { data } = useQuery({ queryKey: ["owner-profiles"], queryFn: () => listFn(), refetchInterval: 15000 });
+  const adjust = useMutation({
+    mutationFn: (v: { discordId: string; delta: number }) => adjustFn({ data: v }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["owner-profiles"] }); toast.success("Points updated"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <Card>
+      <CardHeader><CardTitle className="flex items-center gap-2"><Coins className="h-4 w-4" /> User profiles & points</CardTitle></CardHeader>
+      <CardContent className="space-y-2 max-h-[500px] overflow-y-auto">
+        {(data ?? []).map((p) => {
+          const row = p as { discord_id: string; username: string; tokens: number; login_streak: number };
+          return (
+            <div key={row.discord_id} className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-mono">{row.username || row.discord_id}</div>
+                <div className="text-xs text-muted-foreground font-mono">{row.tokens} pts · streak {row.login_streak}</div>
+              </div>
+              <PointAdjuster onApply={(delta) => adjust.mutate({ discordId: row.discord_id, delta })} />
+            </div>
+          );
+        })}
+        {!data?.length && <Empty />}
+      </CardContent>
+    </Card>
+  );
+}
+
+function PointAdjuster({ onApply }: { onApply: (delta: number) => void }) {
+  const [val, setVal] = useState("");
+  return (
+    <div className="flex items-center gap-1">
+      <Input value={val} onChange={(e) => setVal(e.target.value)} placeholder="±10" className="h-7 w-20 text-xs" />
+      <Button size="sm" className="h-7 text-xs" onClick={() => { const n = parseInt(val, 10); if (Number.isFinite(n)) { onApply(n); setVal(""); } }}>Apply</Button>
     </div>
   );
 }

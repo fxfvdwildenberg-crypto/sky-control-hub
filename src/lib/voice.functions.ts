@@ -33,6 +33,9 @@ export const HIDDEN_VOICE_CHANNELS = new Set([
   "event-stage",
   "983.783 | Training2",
   "983.882 | Training1",
+  "Staff vc",
+  "Manager VC",
+  "Special Guest",
 ]);
 
 export const listVoiceChannels = createServerFn({ method: "GET" }).handler(

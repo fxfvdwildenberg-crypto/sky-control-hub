@@ -8,6 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Radio, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { RoleGuard } from "@/components/RoleGuard";
+import { useServerFn } from "@tanstack/react-start";
+import { submitAtis } from "@/lib/atis.functions";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/atis")({
   head: () => ({
@@ -29,13 +32,15 @@ const schema = z.object({
 });
 
 function AtisPage() {
-  const { atis, upsertAtis, removeAtis } = useFlightStore();
+  const { atis, removeAtis } = useFlightStore();
+  const submit = useServerFn(submitAtis);
+  const qc = useQueryClient();
   const [form, setForm] = useState({ icao: "", departureRunways: "", arrivalRunways: "", wind: "", qnh: "", info: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const set = (k: keyof typeof form, v: string) => setForm((s) => ({ ...s, [k]: v.toUpperCase() }));
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = schema.safeParse(form);
     if (!result.success) {
@@ -45,9 +50,14 @@ function AtisPage() {
       return;
     }
     setErrors({});
-    upsertAtis(result.data);
-    toast.success(`ATIS ${result.data.icao} INFO ${result.data.info} broadcast`);
-    setForm({ icao: "", departureRunways: "", arrivalRunways: "", wind: "", qnh: "", info: "" });
+    try {
+      await submit({ data: result.data });
+      toast.success(`ATIS ${result.data.icao} INFO ${result.data.info} broadcast · +tokens earned`);
+      setForm({ icao: "", departureRunways: "", arrivalRunways: "", wind: "", qnh: "", info: "" });
+      qc.invalidateQueries({ queryKey: ["my-profile"] });
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
   };
 
   return (
