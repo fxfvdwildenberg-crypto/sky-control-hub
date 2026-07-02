@@ -165,7 +165,6 @@ function LiveClock() {
 }
 
 function ProfileChip() {
-  const { useMyProfile } = require("@/lib/use-my-profile") as typeof import("@/lib/use-my-profile");
   const { data } = useMyProfile();
   if (!data) return null;
   return (
@@ -177,5 +176,6 @@ function ProfileChip() {
     </Link>
   );
 }
+
 
 
