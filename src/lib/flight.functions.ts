@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getAppSession } from "./session.server";
+import { awardActionTokens } from "./profile.functions";
 
 const icao = z.string().trim().regex(/^[A-Z]{4}$/, "4-letter ICAO");
 const hhmm = z.string().trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "HH:MM");
