@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoiceRouteImport } from './routes/voice'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as OverviewRouteImport } from './routes/overview'
@@ -31,6 +32,11 @@ import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/publi
 const VoiceRoute = VoiceRouteImport.update({
   id: '/voice',
   path: '/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/overview': typeof OverviewRoute
   '/owner': typeof OwnerRoute
   '/profile': typeof ProfileRoute
+  '/shop': typeof ShopRoute
   '/voice': typeof VoiceRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/overview': typeof OverviewRoute
   '/owner': typeof OwnerRoute
   '/profile': typeof ProfileRoute
+  '/shop': typeof ShopRoute
   '/voice': typeof VoiceRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/overview': typeof OverviewRoute
   '/owner': typeof OwnerRoute
   '/profile': typeof ProfileRoute
+  '/shop': typeof ShopRoute
   '/voice': typeof VoiceRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
@@ -195,6 +204,7 @@ export interface FileRouteTypes {
     | '/overview'
     | '/owner'
     | '/profile'
+    | '/shop'
     | '/voice'
     | '/flights/$id'
     | '/partners/$slug'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/overview'
     | '/owner'
     | '/profile'
+    | '/shop'
     | '/voice'
     | '/flights/$id'
     | '/partners/$slug'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/overview'
     | '/owner'
     | '/profile'
+    | '/shop'
     | '/voice'
     | '/flights/$id'
     | '/partners/$slug'
@@ -256,6 +268,7 @@ export interface RootRouteChildren {
   OverviewRoute: typeof OverviewRoute
   OwnerRoute: typeof OwnerRoute
   ProfileRoute: typeof ProfileRoute
+  ShopRoute: typeof ShopRoute
   VoiceRoute: typeof VoiceRoute
   FlightsIdRoute: typeof FlightsIdRouteWithChildren
   PartnersSlugRoute: typeof PartnersSlugRoute
@@ -271,6 +284,13 @@ declare module '@tanstack/react-router' {
       path: '/voice'
       fullPath: '/voice'
       preLoaderRoute: typeof VoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -419,6 +439,7 @@ const rootRouteChildren: RootRouteChildren = {
   OverviewRoute: OverviewRoute,
   OwnerRoute: OwnerRoute,
   ProfileRoute: ProfileRoute,
+  ShopRoute: ShopRoute,
   VoiceRoute: VoiceRoute,
   FlightsIdRoute: FlightsIdRouteWithChildren,
   PartnersSlugRoute: PartnersSlugRoute,

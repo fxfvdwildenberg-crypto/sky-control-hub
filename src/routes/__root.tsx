@@ -129,7 +129,8 @@ function RootComponent() {
                     <span className="text-sm font-semibold tracking-wide">ATC365</span>
                   </Link>
 
-                  <div className="ml-auto flex items-center gap-4 text-xs font-mono text-sidebar-foreground/70">
+                  <div className="ml-auto flex items-center gap-3 text-xs font-mono text-sidebar-foreground/70">
+                    <ProfileChip />
                     <span className="hidden sm:inline-flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> Live
                     </span>
