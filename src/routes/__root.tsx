@@ -17,6 +17,7 @@ import { ThemeProvider } from "@/lib/theme";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Toaster } from "@/components/ui/sonner";
 import { InstallAppButton } from "@/components/InstallAppButton";
+import { useMyProfile } from "@/lib/use-my-profile";
 
 function NotFoundComponent() {
   return (
