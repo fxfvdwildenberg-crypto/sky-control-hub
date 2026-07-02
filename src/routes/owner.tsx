@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { PageBanner } from "@/components/PageBanner";
 import bannerAsset from "@/assets/city-skyline.png.asset.json";
-import { Shield, Trash2, KeyRound } from "lucide-react";
+import { Shield, Trash2, KeyRound, Coins } from "lucide-react";
+import { ownerListProfiles, ownerAdjustPoints } from "@/lib/profile.functions";
 
 export const Route = createFileRoute("/owner")({
   head: () => ({
