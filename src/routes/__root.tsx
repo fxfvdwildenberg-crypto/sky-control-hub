@@ -126,6 +126,7 @@ function RootComponent() {
             <div className="flex min-h-screen w-full bg-background">
               <AppSidebar />
               <div className="flex flex-1 flex-col">
+                <SiteBanner />
                 <header className="sticky top-0 z-30 flex h-16 items-center gap-3 bg-sidebar px-4 text-sidebar-foreground shadow-sm">
                   <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent" />
                   <Link to="/" className="flex items-center gap-2.5">
@@ -147,6 +148,7 @@ function RootComponent() {
                 </main>
               </div>
             </div>
+            <LoginStreakPopup />
             <Toaster />
           </SidebarProvider>
 
