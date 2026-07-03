@@ -74,6 +74,7 @@ function OwnerConsole() {
     <div className="space-y-6">
       <PageBanner image={bannerAsset.url} title="Owner console" subtitle="Site-wide administration" />
       <div className="px-4 md:px-6 space-y-6 pb-10">
+        <SiteBannerPanel />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard label="Flight plans" value={data?.counts.flights ?? 0} />
           <StatCard label="ATIS entries" value={data?.counts.atis ?? 0} />
