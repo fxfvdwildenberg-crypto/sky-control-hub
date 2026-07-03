@@ -269,6 +269,7 @@ export const equipTag = createServerFn({ method: "POST" })
       if (!owned) throw new Error("You don't own this tag");
     }
     await supabaseAdmin.from("user_profiles").update({ equipped_tag: data.tag, updated_at: new Date().toISOString() } as never).eq("discord_id", s.data.discordId);
+    void syncDiscordNickname(s.data.discordId);
     return { ok: true };
   });
 
