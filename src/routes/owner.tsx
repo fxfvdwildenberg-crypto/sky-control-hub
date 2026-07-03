@@ -145,6 +145,37 @@ function OwnerConsole() {
   );
 }
 
+function SiteBannerPanel() {
+  const loadFn = useServerFn(getSiteBanner);
+  const saveFn = useServerFn(setSiteBanner);
+  const qc = useQueryClient();
+  const { data } = useQuery({ queryKey: ["owner-site-banner"], queryFn: () => loadFn() });
+  const [msg, setMsg] = useState("");
+  const initialized = data?.message ?? "";
+  const [touched, setTouched] = useState(false);
+  const value = touched ? msg : initialized;
+  const save = useMutation({
+    mutationFn: (message: string) => saveFn({ data: { message } }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["owner-site-banner"] }); qc.invalidateQueries({ queryKey: ["site-banner"] }); toast.success("Banner updated"); setTouched(false); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base"><Megaphone className="h-4 w-4" /> Site-wide banner</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <p className="text-xs text-muted-foreground">Shown at the top of every page for all visitors until cleared.</p>
+        <div className="flex gap-2">
+          <Input value={value} onChange={(e) => { setMsg(e.target.value); setTouched(true); }} placeholder="e.g. Scheduled event tonight at 20:00Z — join in Voice" />
+          <Button size="sm" onClick={() => save.mutate(value)}>Save</Button>
+          <Button size="sm" variant="ghost" onClick={() => save.mutate("")}>Clear</Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function ProfilesPanel() {
   const listFn = useServerFn(ownerListProfiles);
   const adjustFn = useServerFn(ownerAdjustPoints);
