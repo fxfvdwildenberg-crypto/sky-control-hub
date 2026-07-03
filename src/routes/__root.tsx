@@ -18,6 +18,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Toaster } from "@/components/ui/sonner";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { useMyProfile } from "@/lib/use-my-profile";
+import { SiteBanner } from "@/components/SiteBanner";
+import { LoginStreakPopup } from "@/components/LoginStreakPopup";
 
 function NotFoundComponent() {
   return (
