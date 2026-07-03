@@ -74,6 +74,57 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          event_date: string
+          id: string
+          image: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          event_date: string
+          id?: string
+          image?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          event_date?: string
+          id?: string
+          image?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      events_page: {
+        Row: {
+          description: string | null
+          header_image: string | null
+          id: number
+          updated_at: string | null
+        }
+        Insert: {
+          description?: string | null
+          header_image?: string | null
+          id?: number
+          updated_at?: string | null
+        }
+        Update: {
+          description?: string | null
+          header_image?: string | null
+          id?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       flight_plans: {
         Row: {
           aircraft: string
@@ -353,6 +404,24 @@ export type Database = {
           slug?: string
           theme?: Json
           updated_at?: string
+        }
+        Relationships: []
+      }
+      site_banner: {
+        Row: {
+          id: number
+          message: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: number
+          message?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: number
+          message?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }

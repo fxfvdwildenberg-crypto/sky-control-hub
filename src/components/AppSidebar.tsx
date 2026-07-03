@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon, Handshake, Wrench, ClipboardList, Shield, User, ShoppingBag } from "lucide-react";
+import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon, Handshake, Wrench, ClipboardList, Shield, User, ShoppingBag, CalendarDays } from "lucide-react";
 import logoAsset from "@/assets/atc365-logo.png.asset.json";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
@@ -44,6 +44,7 @@ const sections: { label: string; items: { title: string; url: string; icon: type
     items: [
       { title: "Profile", url: "/profile", icon: User },
       { title: "Shop", url: "/shop", icon: ShoppingBag },
+      { title: "Events", url: "/events", icon: CalendarDays },
       { title: "Ground Crew", url: "/ground", icon: Wrench },
       { title: "Partners", url: "/partners", icon: Handshake },
       { title: "Overview", url: "/overview", icon: ClipboardList },

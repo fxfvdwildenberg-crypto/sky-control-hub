@@ -52,6 +52,35 @@ function loginBonus(streak: number): number {
   return 15;
 }
 
+/**
+ * Set the user's Discord guild nickname based on their equipped tag / ATC role.
+ * Format: "{TAG} | {username}" — falls back to null (clears nickname) when no tag.
+ * Best-effort: silently no-ops on missing env or Discord errors.
+ */
+export async function syncDiscordNickname(discordId: string): Promise<void> {
+  try {
+    const guildId = process.env.DISCORD_GUILD_ID;
+    const token = process.env.DISCORD_BOT_TOKEN;
+    if (!guildId || !token) return;
+    const { data: p0 } = await supabaseAdmin
+      .from("user_profiles")
+      .select("username, equipped_tag, has_atc_role")
+      .eq("discord_id", discordId)
+      .maybeSingle();
+    if (!p0) return;
+    const row = p0 as { username: string; equipped_tag: string | null; has_atc_role: boolean };
+    const tag = row.has_atc_role ? "ATC" : row.equipped_tag;
+    const nick = tag && row.username ? `${tag} | ${row.username}`.slice(0, 32) : null;
+    await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordId}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bot ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ nick }),
+    });
+  } catch (e) {
+    console.error("syncDiscordNickname failed", e);
+  }
+}
+
 async function ensureProfile(discordId: string, username: string, avatar: string | null, hasAtcRole: boolean) {
   const { data: existing } = await supabaseAdmin
     .from("user_profiles")
@@ -150,6 +179,11 @@ export const getMyProfile = createServerFn({ method: "GET" }).handler(async () =
     p.tokens += loginAward;
     p.login_streak = streak;
     p.last_login_date = today;
+    void syncDiscordNickname(s.data.discordId);
+  }
+  if (s.data.hasAtcRole) {
+    // Ensure nickname reflects ATC role even without a login award today
+    void syncDiscordNickname(s.data.discordId);
   }
 
   const { data: tags } = await supabaseAdmin
@@ -240,6 +274,7 @@ export const equipTag = createServerFn({ method: "POST" })
       if (!owned) throw new Error("You don't own this tag");
     }
     await supabaseAdmin.from("user_profiles").update({ equipped_tag: data.tag, updated_at: new Date().toISOString() } as never).eq("discord_id", s.data.discordId);
+    void syncDiscordNickname(s.data.discordId);
     return { ok: true };
   });
 
