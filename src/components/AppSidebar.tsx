@@ -44,6 +44,7 @@ const sections: { label: string; items: { title: string; url: string; icon: type
     items: [
       { title: "Profile", url: "/profile", icon: User },
       { title: "Shop", url: "/shop", icon: ShoppingBag },
+      { title: "Events", url: "/events", icon: CalendarDays },
       { title: "Ground Crew", url: "/ground", icon: Wrench },
       { title: "Partners", url: "/partners", icon: Handshake },
       { title: "Overview", url: "/overview", icon: ClipboardList },
