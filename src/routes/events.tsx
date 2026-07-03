@@ -30,7 +30,8 @@ function EventsPage() {
   const { data: user } = useCurrentUser();
   const isOwner = user?.discordId === OWNER_DISCORD_ID;
 
-  const page = data?.page ?? { header_image: "", description: "" };
+  const rawPage = data?.page as { header_image?: string | null; description?: string | null } | undefined;
+  const page = { header_image: rawPage?.header_image ?? "", description: rawPage?.description ?? "" };
   const events = data?.events ?? [];
 
   const eventsByDate = useMemo(() => {
