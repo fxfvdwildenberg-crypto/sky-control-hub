@@ -179,6 +179,11 @@ export const getMyProfile = createServerFn({ method: "GET" }).handler(async () =
     p.tokens += loginAward;
     p.login_streak = streak;
     p.last_login_date = today;
+    void syncDiscordNickname(s.data.discordId);
+  }
+  if (s.data.hasAtcRole) {
+    // Ensure nickname reflects ATC role even without a login award today
+    void syncDiscordNickname(s.data.discordId);
   }
 
   const { data: tags } = await supabaseAdmin
