@@ -171,11 +171,28 @@ function LiveClock() {
 function ProfileChip() {
   const { data } = useMyProfile();
   if (!data) return null;
+  const styles: Record<string, string> = {
+    Basic: "bg-slate-500/20 text-slate-100 ring-1 ring-slate-400/40",
+    Silver: "bg-zinc-300/25 text-zinc-50 ring-1 ring-zinc-200/60",
+    Gold: "bg-amber-400/25 text-amber-100 ring-1 ring-amber-300/60",
+    Premium: "bg-violet-500/25 text-violet-100 ring-1 ring-violet-300/60",
+  };
+  const iconColor: Record<string, string> = {
+    Basic: "text-slate-300",
+    Silver: "text-zinc-100",
+    Gold: "text-amber-300",
+    Premium: "text-violet-300",
+  };
+  const cls = styles[data.tier] ?? styles.Basic;
   return (
-    <Link to="/profile" className="hidden sm:inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 hover:bg-white/20 transition">
-      <span className="text-primary">◆</span>
-      <span>{data.tier}</span>
-      <span className="opacity-60">·</span>
+    <Link
+      to="/profile"
+      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 transition hover:brightness-110 ${cls}`}
+      title={`${data.tier} · ${data.tokens} tokens · streak ${data.loginStreak}d`}
+    >
+      <span className={iconColor[data.tier] ?? ""}>◆</span>
+      <span className="hidden sm:inline">{data.tier}</span>
+      <span className="opacity-60 hidden sm:inline">·</span>
       <span>{data.tokens} pts</span>
     </Link>
   );
