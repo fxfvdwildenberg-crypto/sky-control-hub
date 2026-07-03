@@ -18,6 +18,7 @@ import { Route as MyFlightsRouteImport } from './routes/my-flights'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GroundRouteImport } from './routes/ground'
 import { Route as FlightPlanRouteImport } from './routes/flight-plan'
+import { Route as EventsRouteImport } from './routes/events'
 import { Route as ChartsRouteImport } from './routes/charts'
 import { Route as AtisRouteImport } from './routes/atis'
 import { Route as AtcRouteImport } from './routes/atc'
@@ -25,6 +26,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as PartnersSlugRouteImport } from './routes/partners.$slug'
 import { Route as FlightsIdRouteImport } from './routes/flights.$id'
+import { Route as EventsIdRouteImport } from './routes/events.$id'
 import { Route as FlightsIdTicketRouteImport } from './routes/flights.$id.ticket'
 import { Route as ApiPublicDiscordLoginRouteImport } from './routes/api/public/discord/login'
 import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/public/discord/callback'
@@ -74,6 +76,11 @@ const FlightPlanRoute = FlightPlanRouteImport.update({
   path: '/flight-plan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChartsRoute = ChartsRouteImport.update({
   id: '/charts',
   path: '/charts',
@@ -109,6 +116,11 @@ const FlightsIdRoute = FlightsIdRouteImport.update({
   path: '/flights/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsIdRoute = EventsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => EventsRoute,
+} as any)
 const FlightsIdTicketRoute = FlightsIdTicketRouteImport.update({
   id: '/ticket',
   path: '/ticket',
@@ -131,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
+  '/events': typeof EventsRouteWithChildren
   '/flight-plan': typeof FlightPlanRoute
   '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
@@ -140,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/shop': typeof ShopRoute
   '/voice': typeof VoiceRoute
+  '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners/': typeof PartnersIndexRoute
@@ -152,6 +166,7 @@ export interface FileRoutesByTo {
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
+  '/events': typeof EventsRouteWithChildren
   '/flight-plan': typeof FlightPlanRoute
   '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
@@ -161,6 +176,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/shop': typeof ShopRoute
   '/voice': typeof VoiceRoute
+  '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners': typeof PartnersIndexRoute
@@ -174,6 +190,7 @@ export interface FileRoutesById {
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
+  '/events': typeof EventsRouteWithChildren
   '/flight-plan': typeof FlightPlanRoute
   '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
@@ -183,6 +200,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/shop': typeof ShopRoute
   '/voice': typeof VoiceRoute
+  '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
   '/partners/': typeof PartnersIndexRoute
@@ -197,6 +215,7 @@ export interface FileRouteTypes {
     | '/atc'
     | '/atis'
     | '/charts'
+    | '/events'
     | '/flight-plan'
     | '/ground'
     | '/login'
@@ -206,6 +225,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/shop'
     | '/voice'
+    | '/events/$id'
     | '/flights/$id'
     | '/partners/$slug'
     | '/partners/'
@@ -218,6 +238,7 @@ export interface FileRouteTypes {
     | '/atc'
     | '/atis'
     | '/charts'
+    | '/events'
     | '/flight-plan'
     | '/ground'
     | '/login'
@@ -227,6 +248,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/shop'
     | '/voice'
+    | '/events/$id'
     | '/flights/$id'
     | '/partners/$slug'
     | '/partners'
@@ -239,6 +261,7 @@ export interface FileRouteTypes {
     | '/atc'
     | '/atis'
     | '/charts'
+    | '/events'
     | '/flight-plan'
     | '/ground'
     | '/login'
@@ -248,6 +271,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/shop'
     | '/voice'
+    | '/events/$id'
     | '/flights/$id'
     | '/partners/$slug'
     | '/partners/'
@@ -261,6 +285,7 @@ export interface RootRouteChildren {
   AtcRoute: typeof AtcRoute
   AtisRoute: typeof AtisRoute
   ChartsRoute: typeof ChartsRoute
+  EventsRoute: typeof EventsRouteWithChildren
   FlightPlanRoute: typeof FlightPlanRoute
   GroundRoute: typeof GroundRoute
   LoginRoute: typeof LoginRoute
@@ -342,6 +367,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FlightPlanRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/charts': {
       id: '/charts'
       path: '/charts'
@@ -391,6 +423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FlightsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events/$id': {
+      id: '/events/$id'
+      path: '/$id'
+      fullPath: '/events/$id'
+      preLoaderRoute: typeof EventsIdRouteImport
+      parentRoute: typeof EventsRoute
+    }
     '/flights/$id/ticket': {
       id: '/flights/$id/ticket'
       path: '/ticket'
@@ -415,6 +454,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface EventsRouteChildren {
+  EventsIdRoute: typeof EventsIdRoute
+}
+
+const EventsRouteChildren: EventsRouteChildren = {
+  EventsIdRoute: EventsIdRoute,
+}
+
+const EventsRouteWithChildren =
+  EventsRoute._addFileChildren(EventsRouteChildren)
+
 interface FlightsIdRouteChildren {
   FlightsIdTicketRoute: typeof FlightsIdTicketRoute
 }
@@ -432,6 +482,7 @@ const rootRouteChildren: RootRouteChildren = {
   AtcRoute: AtcRoute,
   AtisRoute: AtisRoute,
   ChartsRoute: ChartsRoute,
+  EventsRoute: EventsRouteWithChildren,
   FlightPlanRoute: FlightPlanRoute,
   GroundRoute: GroundRoute,
   LoginRoute: LoginRoute,
