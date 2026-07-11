@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Coins, ShoppingBag } from "lucide-react";
 import { buyTag, SHOP_TAGS } from "@/lib/profile.functions";
+import { listShopTags } from "@/lib/prefs.functions";
 import { useMyProfile } from "@/lib/use-my-profile";
 
 export const Route = createFileRoute("/shop")({
@@ -22,7 +23,11 @@ export const Route = createFileRoute("/shop")({
 function ShopPage() {
   const { data: profile } = useMyProfile();
   const buyFn = useServerFn(buyTag);
+  const listFn = useServerFn(listShopTags);
   const qc = useQueryClient();
+  const { data: dbTags = [] } = useQuery({ queryKey: ["shop-tags"], queryFn: () => listFn(), staleTime: 30_000 });
+  const items = dbTags.length ? dbTags.map((t) => ({ tag: t.tag, cost: t.cost })) : SHOP_TAGS;
+
   const buyMut = useMutation({
     mutationFn: (tag: string) => buyFn({ data: { tag } }),
     onSuccess: (_r, tag) => { qc.invalidateQueries({ queryKey: ["my-profile"] }); toast.success(`Unlocked "${tag}" 🎉`); },
@@ -52,11 +57,11 @@ function ShopPage() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {SHOP_TAGS.map((item) => {
+        {items.map((item) => {
           const owned = profile?.ownedTags.includes(item.tag);
           const canAfford = (profile?.tokens ?? 0) >= item.cost;
           return (
-            <Card key={item.tag} className="hover:shadow-lg transition">
+            <Card key={item.tag} className="transition hover:shadow-lg hover:-translate-y-0.5">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>{item.tag}</span>
