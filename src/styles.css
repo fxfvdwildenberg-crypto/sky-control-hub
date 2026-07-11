@@ -204,3 +204,39 @@
 .animate-fade-in-up {
   animation: fadeInUp 0.35s ease-out both;
 }
+
+@keyframes flyUp {
+  0% { opacity: 0; transform: translateY(10px) scale(0.9); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-60px) scale(1.1); }
+}
+.animate-fly-up { animation: flyUp 1.4s ease-out both; }
+
+/* Seasonal themes — apply via [data-seasonal="..."] on <html>. Both light and dark supported. */
+[data-seasonal="summer"] {
+  --primary: oklch(0.72 0.18 60);
+  --accent: oklch(0.75 0.2 200);
+  --ring: oklch(0.72 0.18 60);
+}
+[data-seasonal="summer"]:not(.dark) { --background: oklch(0.97 0.03 90); }
+[data-seasonal="winter"] {
+  --primary: oklch(0.6 0.14 230);
+  --accent: oklch(0.85 0.05 220);
+  --ring: oklch(0.6 0.14 230);
+}
+[data-seasonal="winter"]:not(.dark) { --background: oklch(0.97 0.01 230); }
+[data-seasonal="halloween"] {
+  --primary: oklch(0.68 0.22 40);
+  --accent: oklch(0.55 0.2 300);
+  --ring: oklch(0.68 0.22 40);
+  --background: oklch(0.18 0.03 30);
+  --foreground: oklch(0.95 0.02 60);
+  --card: oklch(0.24 0.04 30);
+  --card-foreground: oklch(0.95 0.02 60);
+}
+[data-seasonal="easter"] {
+  --primary: oklch(0.78 0.14 340);
+  --accent: oklch(0.85 0.13 140);
+  --ring: oklch(0.78 0.14 340);
+}
+[data-seasonal="easter"]:not(.dark) { --background: oklch(0.98 0.02 340); }

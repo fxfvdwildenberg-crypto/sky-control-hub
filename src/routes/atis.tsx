@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useFlightStore } from "@/lib/flight-store";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,8 @@ import { toast } from "sonner";
 import { RoleGuard } from "@/components/RoleGuard";
 import { useServerFn } from "@tanstack/react-start";
 import { submitAtis } from "@/lib/atis.functions";
-import { useQueryClient } from "@tanstack/react-query";
+import { getAtisDefaults } from "@/lib/prefs.functions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/atis")({
   head: () => ({
@@ -34,8 +35,19 @@ const schema = z.object({
 function AtisPage() {
   const { atis, removeAtis } = useFlightStore();
   const submit = useServerFn(submitAtis);
+  const defaultsFn = useServerFn(getAtisDefaults);
   const qc = useQueryClient();
+  const { data: defaults } = useQuery({ queryKey: ["atis-defaults"], queryFn: () => defaultsFn(), staleTime: 60_000 });
   const [form, setForm] = useState({ icao: "", departureRunways: "", arrivalRunways: "", wind: "", qnh: "", info: "" });
+  useEffect(() => {
+    if (!defaults) return;
+    setForm((s) => ({
+      ...s,
+      icao: s.icao || defaults.icao || "",
+      departureRunways: s.departureRunways || defaults.departureRunways || "",
+      arrivalRunways: s.arrivalRunways || defaults.arrivalRunways || "",
+    }));
+  }, [defaults]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const set = (k: keyof typeof form, v: string) => setForm((s) => ({ ...s, [k]: v.toUpperCase() }));

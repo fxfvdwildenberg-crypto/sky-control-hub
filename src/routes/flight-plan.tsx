@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { FileText, Plane } from "lucide-react";
 import { fileFlightPlan } from "@/lib/flight.functions";
+import { getFlightPlanDefaults } from "@/lib/prefs.functions";
 import { useCurrentUser } from "@/lib/use-current-user";
 
 export const Route = createFileRoute("/flight-plan")({
@@ -52,7 +54,9 @@ function todayISO() {
 function FlightPlanPage() {
   const navigate = useNavigate();
   const file = useServerFn(fileFlightPlan);
+  const defaultsFn = useServerFn(getFlightPlanDefaults);
   const { data: user } = useCurrentUser();
+  const { data: defaults } = useQuery({ queryKey: ["flight-defaults"], queryFn: () => defaultsFn(), staleTime: 60_000 });
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     callsign: "", aircraft: "", departure: "", arrival: "",
@@ -62,6 +66,22 @@ function FlightPlanPage() {
     robloxUsername: "", discordUsername: "", copilotDiscordUsername: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Prefill smart defaults once loaded (only for empty fields)
+  useEffect(() => {
+    if (!defaults) return;
+    setForm((s) => ({
+      ...s,
+      aircraft: s.aircraft || defaults.aircraft || "",
+      departure: s.departure || defaults.departure || "",
+      cruiseLevel: s.cruiseLevel || defaults.cruiseLevel || "",
+      flightRule: (s.flightRule || defaults.flightRule || "IFR") as "IFR" | "VFR",
+      gate: s.gate || defaults.gate || "",
+      robloxUsername: s.robloxUsername || defaults.robloxUsername || "",
+      discordUsername: s.discordUsername || defaults.discordUsername || "",
+    }));
+  }, [defaults]);
+
 
   const set = (k: keyof typeof form, v: string) =>
     setForm((s) => ({ ...s, [k]: k === "flightRule" ? (v as "IFR" | "VFR") : UPPER_KEYS.has(k) ? v.toUpperCase() : v }));

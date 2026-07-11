@@ -1,11 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon, Handshake, Wrench, ClipboardList, Shield, User, ShoppingBag, CalendarDays } from "lucide-react";
+import { Plane, LayoutDashboard, Radio, FileText, Radar, LogIn, LogOut, Headphones, Map as MapIcon, Handshake, Wrench, ClipboardList, Shield, User, ShoppingBag, CalendarDays, Settings, Users, Star, Lock } from "lucide-react";
 import logoAsset from "@/assets/atc365-logo.png.asset.json";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { logout } from "@/lib/auth.functions";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { Button } from "@/components/ui/button";
+import { usePrefs, AVAILABLE_PAGES } from "@/lib/prefs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Sidebar,
   SidebarContent,
@@ -20,34 +22,50 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const dashboard = { title: "Dashboard", url: "/", icon: LayoutDashboard };
+type Item = { title: string; url: string; icon: typeof Plane; tip?: string };
 
-const sections: { label: string; items: { title: string; url: string; icon: typeof Plane }[] }[] = [
+const dashboard: Item = { title: "Dashboard", url: "/", icon: LayoutDashboard, tip: "Live radar & summary" };
+
+const sections: { label: string; items: Item[] }[] = [
   {
     label: "Flight",
     items: [
-      { title: "File Plan", url: "/flight-plan", icon: FileText },
-      { title: "My Flights", url: "/my-flights", icon: Plane },
-      { title: "Charts", url: "/charts", icon: MapIcon },
+      { title: "File Plan", url: "/flight-plan", icon: FileText, tip: "Submit a new flight plan" },
+      { title: "My Flights", url: "/my-flights", icon: Plane, tip: "Your flights & squawk control" },
+      { title: "Charts", url: "/charts", icon: MapIcon, tip: "Airport charts" },
     ],
   },
   {
     label: "ATC",
     items: [
-      { title: "ATC Center", url: "/atc", icon: Radar },
+      { title: "ATC Center", url: "/atc", icon: Radar, tip: "Approve plans & manage traffic" },
       { title: "ATIS", url: "/atis", icon: Radio },
       { title: "Voice", url: "/voice", icon: Headphones },
     ],
   },
   {
-    label: "Others",
+    label: "Community",
+    items: [
+      { title: "Users", url: "/users", icon: Users },
+      { title: "Friends", url: "/friends", icon: Users },
+      { title: "Partners", url: "/partners", icon: Handshake },
+      { title: "Events", url: "/events", icon: CalendarDays },
+    ],
+  },
+  {
+    label: "You",
     items: [
       { title: "Profile", url: "/profile", icon: User },
       { title: "Shop", url: "/shop", icon: ShoppingBag },
-      { title: "Events", url: "/events", icon: CalendarDays },
+      { title: "Settings", url: "/settings", icon: Settings },
+    ],
+  },
+  {
+    label: "Others",
+    items: [
       { title: "Ground Crew", url: "/ground", icon: Wrench },
-      { title: "Partners", url: "/partners", icon: Handshake },
       { title: "Overview", url: "/overview", icon: ClipboardList },
+      { title: "Server", url: "/server", icon: Lock, tip: "Private ATC-only invite" },
     ],
   },
 ];
@@ -59,17 +77,31 @@ export function AppSidebar() {
   const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path));
   const { data: currentUser } = useCurrentUser();
   const isOwner = currentUser?.discordId === "1405496423570473011";
+  const { prefs } = usePrefs();
 
-  const renderItem = (item: { title: string; url: string; icon: typeof Plane }) => (
+  const renderItem = (item: Item) => (
     <SidebarMenuItem key={item.url}>
       <SidebarMenuButton asChild isActive={isActive(item.url)}>
-        <Link to={item.url} className="flex items-center gap-2">
-          <item.icon className="h-4 w-4" />
+        <Link to={item.url} className="flex items-center gap-2 transition-all hover:translate-x-0.5">
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild><item.icon className="h-4 w-4 shrink-0" /></TooltipTrigger>
+              {item.tip && <TooltipContent side="right">{item.tip}</TooltipContent>}
+            </Tooltip>
+          </TooltipProvider>
           {!collapsed && <span>{item.title}</span>}
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
+
+  const pinnedItems: Item[] = prefs.pinnedPages
+    .map((p) => {
+      const page = AVAILABLE_PAGES.find((a) => a.key === p);
+      if (!page) return null;
+      return { title: page.label, url: page.key, icon: Star };
+    })
+    .filter((x): x is Item => !!x);
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -93,6 +125,13 @@ export function AppSidebar() {
             <SidebarMenu>{renderItem(dashboard)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {pinnedItems.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Pinned</SidebarGroupLabel>
+            <SidebarGroupContent><SidebarMenu>{pinnedItems.map(renderItem)}</SidebarMenu></SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {sections.map((sec) => (
           <SidebarGroup key={sec.label}>

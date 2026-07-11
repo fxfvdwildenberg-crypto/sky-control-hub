@@ -20,6 +20,10 @@ import { InstallAppButton } from "@/components/InstallAppButton";
 import { useMyProfile } from "@/lib/use-my-profile";
 import { SiteBanner } from "@/components/SiteBanner";
 import { LoginStreakPopup } from "@/components/LoginStreakPopup";
+import { PrefsProvider, useShortcuts } from "@/lib/prefs";
+import { MiniStats } from "@/components/MiniStats";
+import { TokenFlyAnimation } from "@/components/TokenFlyAnimation";
+import { ShortcutCheatsheet } from "@/components/ShortcutCheatsheet";
 
 function NotFoundComponent() {
   return (
@@ -121,41 +125,51 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <FlightStoreProvider>
-          <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-background">
-              <AppSidebar />
-              <div className="flex flex-1 flex-col">
-                <SiteBanner />
-                <header className="sticky top-0 z-30 flex h-16 items-center gap-3 bg-sidebar px-4 text-sidebar-foreground shadow-sm">
-                  <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent" />
-                  <Link to="/" className="flex items-center gap-2.5">
-                    <span className="text-sm font-semibold tracking-wide">ATC365</span>
-                  </Link>
+        <PrefsProvider>
+          <FlightStoreProvider>
+            <SidebarProvider>
+              <ShortcutsMount />
+              <div className="flex min-h-screen w-full bg-background">
+                <AppSidebar />
+                <div className="flex flex-1 flex-col">
+                  <SiteBanner />
+                  <header className="sticky top-0 z-30 flex h-14 items-center gap-3 bg-sidebar px-4 text-sidebar-foreground shadow-sm">
+                    <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent" />
+                    <Link to="/" className="flex items-center gap-2.5">
+                      <span className="text-sm font-semibold tracking-wide">ATC365</span>
+                    </Link>
 
-                  <div className="ml-auto flex items-center gap-3 text-xs font-mono text-sidebar-foreground/70">
-                    <ProfileChip />
-                    <span className="hidden sm:inline-flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> Live
-                    </span>
-                    <LiveClock />
-                    <InstallAppButton />
-                    <ThemeToggle />
-                  </div>
-                </header>
-                <main className="flex-1">
-                  <Outlet />
-                </main>
+                    <div className="ml-auto flex items-center gap-3 text-xs font-mono text-sidebar-foreground/70">
+                      <ProfileChip />
+                      <span className="hidden sm:inline-flex items-center gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> Live
+                      </span>
+                      <LiveClock />
+                      <InstallAppButton />
+                      <ThemeToggle />
+                    </div>
+                  </header>
+                  <main className="flex-1">
+                    <Outlet />
+                  </main>
+                </div>
               </div>
-            </div>
-            <LoginStreakPopup />
-            <Toaster />
-          </SidebarProvider>
-
-        </FlightStoreProvider>
+              <MiniStats />
+              <TokenFlyAnimation />
+              <ShortcutCheatsheet />
+              <LoginStreakPopup />
+              <Toaster />
+            </SidebarProvider>
+          </FlightStoreProvider>
+        </PrefsProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
+}
+
+function ShortcutsMount() {
+  useShortcuts();
+  return null;
 }
 
 function LiveClock() {
