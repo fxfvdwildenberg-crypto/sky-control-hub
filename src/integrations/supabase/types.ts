@@ -209,6 +209,30 @@ export type Database = {
         }
         Relationships: []
       }
+      friendships: {
+        Row: {
+          created_at: string
+          friend_id: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_id: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ground_messages: {
         Row: {
           content: string
@@ -375,6 +399,7 @@ export type Database = {
         Row: {
           bio: string
           created_at: string
+          created_by_owner: boolean
           discord_url: string
           id: string
           name: string
@@ -386,6 +411,7 @@ export type Database = {
         Insert: {
           bio?: string
           created_at?: string
+          created_by_owner?: boolean
           discord_url?: string
           id?: string
           name: string
@@ -397,6 +423,7 @@ export type Database = {
         Update: {
           bio?: string
           created_at?: string
+          created_by_owner?: boolean
           discord_url?: string
           id?: string
           name?: string
@@ -404,6 +431,27 @@ export type Database = {
           slug?: string
           theme?: Json
           updated_at?: string
+        }
+        Relationships: []
+      }
+      shop_tags: {
+        Row: {
+          cost: number
+          created_at: string
+          id: string
+          tag: string
+        }
+        Insert: {
+          cost: number
+          created_at?: string
+          id?: string
+          tag: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          id?: string
+          tag?: string
         }
         Relationships: []
       }
@@ -422,6 +470,27 @@ export type Database = {
           id?: number
           message?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      site_theme: {
+        Row: {
+          enabled_themes: string[]
+          forced_theme: string | null
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          enabled_themes?: string[]
+          forced_theme?: string | null
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          enabled_themes?: string[]
+          forced_theme?: string | null
+          id?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -462,6 +531,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_prefs: {
+        Row: {
+          discord_id: string
+          mini_stats: boolean
+          pinned_pages: string[]
+          seen_tours: string[]
+          shortcuts: Json
+          theme_choice: string | null
+          updated_at: string
+        }
+        Insert: {
+          discord_id: string
+          mini_stats?: boolean
+          pinned_pages?: string[]
+          seen_tours?: string[]
+          shortcuts?: Json
+          theme_choice?: string | null
+          updated_at?: string
+        }
+        Update: {
+          discord_id?: string
+          mini_stats?: boolean
+          pinned_pages?: string[]
+          seen_tours?: string[]
+          shortcuts?: Json
+          theme_choice?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_profiles: {
         Row: {
