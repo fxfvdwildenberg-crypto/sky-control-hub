@@ -251,7 +251,9 @@ export const buyTag = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const s = await getAppSession();
     if (!s.data.discordId) throw new Error("Sign in first");
-    const item = SHOP_TAGS.find((t) => t.tag === data.tag);
+    // Prefer DB shop_tags, fall back to hardcoded
+    const { data: dbTag } = await supabaseAdmin.from("shop_tags").select("tag,cost").eq("tag", data.tag).maybeSingle();
+    const item = dbTag ? (dbTag as { tag: string; cost: number }) : SHOP_TAGS.find((t) => t.tag === data.tag);
     if (!item) throw new Error("Unknown tag");
     const { data: p0 } = await supabaseAdmin.from("user_profiles").select("tokens").eq("discord_id", s.data.discordId).maybeSingle();
     const p = p0 as { tokens: number } | null;
