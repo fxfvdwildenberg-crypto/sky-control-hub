@@ -11,9 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { PageBanner } from "@/components/PageBanner";
 import bannerAsset from "@/assets/city-skyline.png.asset.json";
-import { Shield, Trash2, KeyRound, Coins, Megaphone } from "lucide-react";
+import { Shield, Trash2, KeyRound, Coins, Megaphone, Palette, Handshake, Tag, Plus } from "lucide-react";
 import { ownerListProfiles, ownerAdjustPoints } from "@/lib/profile.functions";
 import { getSiteBanner, setSiteBanner } from "@/lib/site.functions";
+import { getSiteTheme, updateSiteTheme, SEASONAL_THEMES, listShopTags, createShopTag, deleteShopTag, ownerCreatePartner, ownerDeletePartner } from "@/lib/prefs.functions";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/owner")({
   head: () => ({
@@ -140,8 +143,125 @@ function OwnerConsole() {
           </CardContent>
         </Card>
         <ProfilesPanel />
+        <ThemePanel />
+        <PartnersAdminPanel />
+        <ShopTagsPanel />
       </div>
     </div>
+  );
+}
+
+function ThemePanel() {
+  const loadFn = useServerFn(getSiteTheme);
+  const saveFn = useServerFn(updateSiteTheme);
+  const qc = useQueryClient();
+  const { data } = useQuery({ queryKey: ["owner-site-theme"], queryFn: () => loadFn() });
+  const enabled = (data?.enabled_themes ?? []) as string[];
+  const forced = (data?.forced_theme ?? null) as string | null;
+  const save = useMutation({
+    mutationFn: (v: { enabledThemes: typeof SEASONAL_THEMES[number][]; forcedTheme: typeof SEASONAL_THEMES[number] | null }) => saveFn({ data: v }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["owner-site-theme"] }); qc.invalidateQueries({ queryKey: ["site-theme"] }); toast.success("Theme updated"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const toggle = (t: string) => {
+    const next = enabled.includes(t) ? enabled.filter((x) => x !== t) : [...enabled, t];
+    const nextForced = forced && !next.includes(forced) ? null : forced;
+    save.mutate({ enabledThemes: next as typeof SEASONAL_THEMES[number][], forcedTheme: nextForced as typeof SEASONAL_THEMES[number] | null });
+  };
+  return (
+    <Card>
+      <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-4 w-4" /> Seasonal themes</CardTitle></CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-xs text-muted-foreground">Enabled themes are available to users. Forcing a theme applies it site-wide.</p>
+        <div className="space-y-2">
+          {SEASONAL_THEMES.map((t) => (
+            <div key={t} className="flex items-center gap-3 rounded-md border p-2">
+              <Switch checked={enabled.includes(t)} onCheckedChange={() => toggle(t)} />
+              <span className="flex-1 capitalize text-sm">{t}</span>
+              <Button size="sm" variant={forced === t ? "default" : "outline"} disabled={!enabled.includes(t)}
+                onClick={() => save.mutate({ enabledThemes: enabled as typeof SEASONAL_THEMES[number][], forcedTheme: forced === t ? null : t })}>
+                {forced === t ? "Force ON" : "Force"}
+              </Button>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function PartnersAdminPanel() {
+  const createFn = useServerFn(ownerCreatePartner);
+  const deleteFn = useServerFn(ownerDeletePartner);
+  const loadFn = useServerFn(ownerOverview);
+  const qc = useQueryClient();
+  const { data } = useQuery({ queryKey: ["owner-overview"], queryFn: () => loadFn() });
+  const [form, setForm] = useState({ name: "", slug: "", ownerCode: "", primaryColor: "#3b82f6", accentColor: "#f59e0b", bio: "" });
+  const create = useMutation({
+    mutationFn: () => createFn({ data: form }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["owner-overview"] }); toast.success("Partner created"); setForm({ name: "", slug: "", ownerCode: "", primaryColor: "#3b82f6", accentColor: "#f59e0b", bio: "" }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const del = useMutation({ mutationFn: (slug: string) => deleteFn({ data: { slug } }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["owner-overview"] }); toast.success("Deleted"); } });
+  return (
+    <Card>
+      <CardHeader><CardTitle className="flex items-center gap-2"><Handshake className="h-4 w-4" /> Partner dashboards</CardTitle></CardHeader>
+      <CardContent className="space-y-3">
+        <div className="space-y-1">
+          {(data?.partners ?? []).map((p) => (
+            <div key={p.id} className="flex items-center justify-between rounded border p-2 text-sm">
+              <span className="font-mono">{p.name} <Badge variant="outline" className="ml-1 text-[10px]">{p.slug}</Badge></span>
+              <Button size="sm" variant="ghost" className="text-destructive" onClick={() => { if (confirm(`Delete ${p.name}?`)) del.mutate(p.slug); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+            </div>
+          ))}
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 border-t pt-3">
+          <Input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <Input placeholder="slug (lowercase-dashes)" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase() })} />
+          <Input placeholder="Owner code" value={form.ownerCode} onChange={(e) => setForm({ ...form, ownerCode: e.target.value })} />
+          <div className="flex gap-2 items-center">
+            <input type="color" value={form.primaryColor} onChange={(e) => setForm({ ...form, primaryColor: e.target.value })} className="h-9 w-14 rounded border" />
+            <input type="color" value={form.accentColor} onChange={(e) => setForm({ ...form, accentColor: e.target.value })} className="h-9 w-14 rounded border" />
+            <span className="text-xs text-muted-foreground">colors</span>
+          </div>
+          <Input className="sm:col-span-2" placeholder="Bio (optional)" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
+        </div>
+        <Button size="sm" onClick={() => create.mutate()} className="gap-1"><Plus className="h-3.5 w-3.5" /> Create partner</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ShopTagsPanel() {
+  const listFn = useServerFn(listShopTags);
+  const createFn = useServerFn(createShopTag);
+  const deleteFn = useServerFn(deleteShopTag);
+  const qc = useQueryClient();
+  const { data = [] } = useQuery({ queryKey: ["shop-tags"], queryFn: () => listFn() });
+  const [tag, setTag] = useState(""); const [cost, setCost] = useState("");
+  const create = useMutation({
+    mutationFn: () => createFn({ data: { tag, cost: parseInt(cost, 10) || 0 } }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["shop-tags"] }); toast.success("Tag created"); setTag(""); setCost(""); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const del = useMutation({ mutationFn: (id: string) => deleteFn({ data: { id } }), onSuccess: () => { qc.invalidateQueries({ queryKey: ["shop-tags"] }); toast.success("Deleted"); } });
+  return (
+    <Card>
+      <CardHeader><CardTitle className="flex items-center gap-2"><Tag className="h-4 w-4" /> Shop tags</CardTitle></CardHeader>
+      <CardContent className="space-y-2">
+        {data.map((t) => (
+          <div key={t.id} className="flex items-center justify-between rounded border p-2 text-sm">
+            <span>{t.tag} <span className="text-muted-foreground font-mono">· {t.cost} pts</span></span>
+            <Button size="sm" variant="ghost" className="text-destructive" onClick={() => del.mutate(t.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+          </div>
+        ))}
+        <div className="flex gap-2 border-t pt-3">
+          <Input placeholder="Tag name" value={tag} onChange={(e) => setTag(e.target.value)} />
+          <Input placeholder="Cost" value={cost} onChange={(e) => setCost(e.target.value)} className="w-24" />
+          <Button size="sm" onClick={() => create.mutate()}>Add</Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
