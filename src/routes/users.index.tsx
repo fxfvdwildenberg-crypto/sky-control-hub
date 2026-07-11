@@ -11,7 +11,7 @@ import { listUsers, sendFriendRequest } from "@/lib/prefs.functions";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/users")({
+export const Route = createFileRoute("/users/")({
   head: () => ({ meta: [{ title: "Users — ATC365" }, { name: "description", content: "Browse ATC365 pilots and controllers." }] }),
   component: UsersPage,
 });

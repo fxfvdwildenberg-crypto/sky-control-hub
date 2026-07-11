@@ -11,19 +11,24 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoiceRouteImport } from './routes/voice'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ServerRouteImport } from './routes/server'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as MyFlightsRouteImport } from './routes/my-flights'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GroundRouteImport } from './routes/ground'
+import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as FlightPlanRouteImport } from './routes/flight-plan'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as ChartsRouteImport } from './routes/charts'
 import { Route as AtisRouteImport } from './routes/atis'
 import { Route as AtcRouteImport } from './routes/atc'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UsersIndexRouteImport } from './routes/users.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
+import { Route as UsersDiscordIdRouteImport } from './routes/users.$discordId'
 import { Route as PartnersSlugRouteImport } from './routes/partners.$slug'
 import { Route as FlightsIdRouteImport } from './routes/flights.$id'
 import { Route as EventsIdRouteImport } from './routes/events.$id'
@@ -39,6 +44,16 @@ const VoiceRoute = VoiceRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServerRoute = ServerRouteImport.update({
+  id: '/server',
+  path: '/server',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -71,6 +86,11 @@ const GroundRoute = GroundRouteImport.update({
   path: '/ground',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FriendsRoute = FriendsRouteImport.update({
+  id: '/friends',
+  path: '/friends',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FlightPlanRoute = FlightPlanRouteImport.update({
   id: '/flight-plan',
   path: '/flight-plan',
@@ -101,9 +121,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UsersIndexRoute = UsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PartnersIndexRoute = PartnersIndexRouteImport.update({
   id: '/partners/',
   path: '/partners/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersDiscordIdRoute = UsersDiscordIdRouteImport.update({
+  id: '/users/$discordId',
+  path: '/users/$discordId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersSlugRoute = PartnersSlugRouteImport.update({
@@ -145,18 +175,23 @@ export interface FileRoutesByFullPath {
   '/charts': typeof ChartsRoute
   '/events': typeof EventsRouteWithChildren
   '/flight-plan': typeof FlightPlanRoute
+  '/friends': typeof FriendsRoute
   '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
   '/overview': typeof OverviewRoute
   '/owner': typeof OwnerRoute
   '/profile': typeof ProfileRoute
+  '/server': typeof ServerRoute
+  '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/voice': typeof VoiceRoute
   '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
+  '/users/$discordId': typeof UsersDiscordIdRoute
   '/partners/': typeof PartnersIndexRoute
+  '/users/': typeof UsersIndexRoute
   '/flights/$id/ticket': typeof FlightsIdTicketRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
@@ -168,18 +203,23 @@ export interface FileRoutesByTo {
   '/charts': typeof ChartsRoute
   '/events': typeof EventsRouteWithChildren
   '/flight-plan': typeof FlightPlanRoute
+  '/friends': typeof FriendsRoute
   '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
   '/overview': typeof OverviewRoute
   '/owner': typeof OwnerRoute
   '/profile': typeof ProfileRoute
+  '/server': typeof ServerRoute
+  '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/voice': typeof VoiceRoute
   '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
+  '/users/$discordId': typeof UsersDiscordIdRoute
   '/partners': typeof PartnersIndexRoute
+  '/users': typeof UsersIndexRoute
   '/flights/$id/ticket': typeof FlightsIdTicketRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
@@ -192,18 +232,23 @@ export interface FileRoutesById {
   '/charts': typeof ChartsRoute
   '/events': typeof EventsRouteWithChildren
   '/flight-plan': typeof FlightPlanRoute
+  '/friends': typeof FriendsRoute
   '/ground': typeof GroundRoute
   '/login': typeof LoginRoute
   '/my-flights': typeof MyFlightsRoute
   '/overview': typeof OverviewRoute
   '/owner': typeof OwnerRoute
   '/profile': typeof ProfileRoute
+  '/server': typeof ServerRoute
+  '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/voice': typeof VoiceRoute
   '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
   '/partners/$slug': typeof PartnersSlugRoute
+  '/users/$discordId': typeof UsersDiscordIdRoute
   '/partners/': typeof PartnersIndexRoute
+  '/users/': typeof UsersIndexRoute
   '/flights/$id/ticket': typeof FlightsIdTicketRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/login': typeof ApiPublicDiscordLoginRoute
@@ -217,18 +262,23 @@ export interface FileRouteTypes {
     | '/charts'
     | '/events'
     | '/flight-plan'
+    | '/friends'
     | '/ground'
     | '/login'
     | '/my-flights'
     | '/overview'
     | '/owner'
     | '/profile'
+    | '/server'
+    | '/settings'
     | '/shop'
     | '/voice'
     | '/events/$id'
     | '/flights/$id'
     | '/partners/$slug'
+    | '/users/$discordId'
     | '/partners/'
+    | '/users/'
     | '/flights/$id/ticket'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
@@ -240,18 +290,23 @@ export interface FileRouteTypes {
     | '/charts'
     | '/events'
     | '/flight-plan'
+    | '/friends'
     | '/ground'
     | '/login'
     | '/my-flights'
     | '/overview'
     | '/owner'
     | '/profile'
+    | '/server'
+    | '/settings'
     | '/shop'
     | '/voice'
     | '/events/$id'
     | '/flights/$id'
     | '/partners/$slug'
+    | '/users/$discordId'
     | '/partners'
+    | '/users'
     | '/flights/$id/ticket'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
@@ -263,18 +318,23 @@ export interface FileRouteTypes {
     | '/charts'
     | '/events'
     | '/flight-plan'
+    | '/friends'
     | '/ground'
     | '/login'
     | '/my-flights'
     | '/overview'
     | '/owner'
     | '/profile'
+    | '/server'
+    | '/settings'
     | '/shop'
     | '/voice'
     | '/events/$id'
     | '/flights/$id'
     | '/partners/$slug'
+    | '/users/$discordId'
     | '/partners/'
+    | '/users/'
     | '/flights/$id/ticket'
     | '/api/public/discord/callback'
     | '/api/public/discord/login'
@@ -287,17 +347,22 @@ export interface RootRouteChildren {
   ChartsRoute: typeof ChartsRoute
   EventsRoute: typeof EventsRouteWithChildren
   FlightPlanRoute: typeof FlightPlanRoute
+  FriendsRoute: typeof FriendsRoute
   GroundRoute: typeof GroundRoute
   LoginRoute: typeof LoginRoute
   MyFlightsRoute: typeof MyFlightsRoute
   OverviewRoute: typeof OverviewRoute
   OwnerRoute: typeof OwnerRoute
   ProfileRoute: typeof ProfileRoute
+  ServerRoute: typeof ServerRoute
+  SettingsRoute: typeof SettingsRoute
   ShopRoute: typeof ShopRoute
   VoiceRoute: typeof VoiceRoute
   FlightsIdRoute: typeof FlightsIdRouteWithChildren
   PartnersSlugRoute: typeof PartnersSlugRoute
+  UsersDiscordIdRoute: typeof UsersDiscordIdRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
+  UsersIndexRoute: typeof UsersIndexRoute
   ApiPublicDiscordCallbackRoute: typeof ApiPublicDiscordCallbackRoute
   ApiPublicDiscordLoginRoute: typeof ApiPublicDiscordLoginRoute
 }
@@ -316,6 +381,20 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/server': {
+      id: '/server'
+      path: '/server'
+      fullPath: '/server'
+      preLoaderRoute: typeof ServerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -360,6 +439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GroundRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/friends': {
+      id: '/friends'
+      path: '/friends'
+      fullPath: '/friends'
+      preLoaderRoute: typeof FriendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/flight-plan': {
       id: '/flight-plan'
       path: '/flight-plan'
@@ -402,11 +488,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/users/': {
+      id: '/users/'
+      path: '/users'
+      fullPath: '/users/'
+      preLoaderRoute: typeof UsersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/partners/': {
       id: '/partners/'
       path: '/partners'
       fullPath: '/partners/'
       preLoaderRoute: typeof PartnersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users/$discordId': {
+      id: '/users/$discordId'
+      path: '/users/$discordId'
+      fullPath: '/users/$discordId'
+      preLoaderRoute: typeof UsersDiscordIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partners/$slug': {
@@ -484,17 +584,22 @@ const rootRouteChildren: RootRouteChildren = {
   ChartsRoute: ChartsRoute,
   EventsRoute: EventsRouteWithChildren,
   FlightPlanRoute: FlightPlanRoute,
+  FriendsRoute: FriendsRoute,
   GroundRoute: GroundRoute,
   LoginRoute: LoginRoute,
   MyFlightsRoute: MyFlightsRoute,
   OverviewRoute: OverviewRoute,
   OwnerRoute: OwnerRoute,
   ProfileRoute: ProfileRoute,
+  ServerRoute: ServerRoute,
+  SettingsRoute: SettingsRoute,
   ShopRoute: ShopRoute,
   VoiceRoute: VoiceRoute,
   FlightsIdRoute: FlightsIdRouteWithChildren,
   PartnersSlugRoute: PartnersSlugRoute,
+  UsersDiscordIdRoute: UsersDiscordIdRoute,
   PartnersIndexRoute: PartnersIndexRoute,
+  UsersIndexRoute: UsersIndexRoute,
   ApiPublicDiscordCallbackRoute: ApiPublicDiscordCallbackRoute,
   ApiPublicDiscordLoginRoute: ApiPublicDiscordLoginRoute,
 }
