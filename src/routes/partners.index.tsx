@@ -25,7 +25,7 @@ function PartnersPage() {
       <div className="mb-6 flex items-center gap-3">
         <Handshake className="h-6 w-6 text-primary" />
         <div>
-          <h1 className="text-2xl font-semibold">Partner Program</h1>
+          <h1 className="text-2xl font-semibold">ATC365 Airlines</h1>
           <p className="text-sm text-muted-foreground">Partnered virtual airlines on ATC365.</p>
         </div>
       </div>
