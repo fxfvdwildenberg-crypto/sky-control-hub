@@ -48,7 +48,7 @@ const sections: { label: string; items: Item[] }[] = [
     items: [
       { title: "Users", url: "/users", icon: Users },
       { title: "Friends", url: "/friends", icon: Users },
-      { title: "ATC365 Airlines", url: "/partners", icon: Handshake },
+      { title: "Partners", url: "/partners", icon: Handshake },
       { title: "Events", url: "/events", icon: CalendarDays },
     ],
   },

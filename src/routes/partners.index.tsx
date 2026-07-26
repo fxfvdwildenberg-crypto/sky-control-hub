@@ -10,7 +10,7 @@ export const Route = createFileRoute("/partners/")({
   component: PartnersPage,
   head: () => ({
     meta: [
-      { title: "ATC365 Airlines" },
+      { title: "Partner Program — ATC365" },
       { name: "description", content: "Partnered virtual airlines on the ATC365 network." },
     ],
   }),
@@ -25,7 +25,7 @@ function PartnersPage() {
       <div className="mb-6 flex items-center gap-3">
         <Handshake className="h-6 w-6 text-primary" />
         <div>
-          <h1 className="text-2xl font-semibold">ATC365 Airlines</h1>
+          <h1 className="text-2xl font-semibold">Partner Program</h1>
           <p className="text-sm text-muted-foreground">Partnered virtual airlines on ATC365.</p>
         </div>
       </div>
@@ -48,7 +48,7 @@ function PartnersPage() {
                   <h2 className="text-lg font-semibold">{p.name}</h2>
                   <p className="mt-1 text-sm opacity-90 line-clamp-3">{p.bio || "—"}</p>
                   <div className="mt-4 flex gap-2">
-                    <Link to="/$slug" params={{ slug: p.slug }}>
+                    <Link to="/partners/$slug" params={{ slug: p.slug }}>
                       <Button size="sm" variant="secondary" className="gap-2">
                         Join Dashboard <ArrowRight className="h-3.5 w-3.5" />
                       </Button>

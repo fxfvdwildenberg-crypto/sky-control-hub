@@ -32,7 +32,7 @@ function ServerPage() {
           </div>
           <h1 className="text-2xl font-bold">Private Roblox server</h1>
           <p className="text-sm text-muted-foreground">
-            Restricted to members with the <span className="font-mono text-foreground">ATC365</span> role.
+            Restricted to members with the <span className="font-mono text-foreground">Air Traffic Control</span> role.
           </p>
 
           {isLoading && <p className="text-sm text-muted-foreground">Verifying access…</p>}
@@ -43,7 +43,7 @@ function ServerPage() {
 
           {!isLoading && user && !unlocked && (
             <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
-              You need the ATC365 role in the ATC365 Discord to access this server.
+              You need the Air Traffic Control role in the ATC365 Discord to access this server.
             </div>
           )}
 

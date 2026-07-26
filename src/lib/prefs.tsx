@@ -153,7 +153,7 @@ export const AVAILABLE_PAGES = [
   { key: "/voice", label: "Voice" },
   { key: "/charts", label: "Charts" },
   { key: "/ground", label: "Ground Crew" },
-  { key: "/partners", label: "ATC365 Airlines" },
+  { key: "/partners", label: "Partners" },
   { key: "/events", label: "Events" },
   { key: "/profile", label: "Profile" },
   { key: "/shop", label: "Shop" },

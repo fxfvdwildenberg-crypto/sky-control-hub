@@ -32,7 +32,7 @@ import {
   Palette,
 } from "lucide-react";
 
-export const Route = createFileRoute("/$slug")({
+export const Route = createFileRoute("/partners/$slug")({
   component: PartnerDashboard,
 });
 
@@ -46,7 +46,6 @@ function PartnerDashboard() {
     queryKey: ["partner", slug],
     queryFn: () => fn({ data: { slug } }),
     refetchInterval: 5000,
-    retry: false,
   });
 
   const [code, setCode] = useState("");
@@ -70,12 +69,10 @@ function PartnerDashboard() {
   if (error || !data) {
     return (
       <div className="container mx-auto max-w-2xl px-4 py-10 text-center">
-        <h1 className="text-2xl font-bold">Page not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          No ATC365 Airline is registered at <span className="font-mono">/{slug}</span>.
-        </p>
+        <p className="text-destructive">Couldn't load this partner dashboard.</p>
+        <p className="mt-2 text-xs text-muted-foreground">{(error as Error)?.message}</p>
         <Link to="/partners">
-          <Button variant="outline" className="mt-4">Back to ATC365 Airlines</Button>
+          <Button variant="outline" className="mt-4">Back to partners</Button>
         </Link>
       </div>
     );
@@ -131,6 +128,8 @@ function PartnerDashboard() {
     } catch (e) { toast.error((e as Error).message); }
   };
 
+  // Only force the partner colors when NOT applied site-wide; once site-wide is on,
+  // the global theme already takes care of bg/text and we let it through.
   const sitewide = partnerTheme?.slug === partner.slug;
   return (
     <div
@@ -138,10 +137,11 @@ function PartnerDashboard() {
       style={sitewide ? undefined : { background: theme.bg ?? undefined, color: theme.text ?? undefined }}
     >
       <div className="container mx-auto max-w-5xl px-4 py-6">
+        {/* Top bar */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
           <Link to="/partners">
             <Button size="sm" variant="secondary" className="gap-2">
-              <ArrowLeft className="h-3.5 w-3.5" /> All airlines
+              <ArrowLeft className="h-3.5 w-3.5" /> All partners
             </Button>
           </Link>
           <div className="flex flex-wrap items-center gap-2">
@@ -174,6 +174,7 @@ function PartnerDashboard() {
           </div>
         </div>
 
+        {/* Hero / Bio */}
         <Card
           className="mb-6 border-white/10 bg-black/25 p-6 backdrop-blur"
           style={{ color: theme.text }}
@@ -200,6 +201,7 @@ function PartnerDashboard() {
             </TabsTrigger>
           </TabsList>
 
+          {/* Announcements page */}
           <TabsContent value="announcements">
             <Card className="bg-background/95 p-4 text-foreground">
               <div className="mb-3 flex items-center gap-2">
@@ -227,6 +229,7 @@ function PartnerDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Chat page */}
           <TabsContent value="chat">
             <Card className="bg-background/95 p-4 text-foreground">
               <div className="mb-3 flex items-center gap-2">
@@ -266,6 +269,7 @@ function PartnerDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Owner controls */}
           <TabsContent value="owner">
             <Card className="bg-background/95 p-4 text-foreground">
               <div className="mb-3 flex items-center gap-2">
@@ -284,6 +288,7 @@ function PartnerDashboard() {
               </p>
 
               <div className="mt-6 grid gap-6 md:grid-cols-2">
+                {/* Profile editor */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm font-medium">
                     <Settings className="h-3.5 w-3.5" /> Profile
@@ -309,6 +314,7 @@ function PartnerDashboard() {
                   </Button>
                 </div>
 
+                {/* Announcement composer */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm font-medium">
                     <Megaphone className="h-3.5 w-3.5" /> Post announcement
