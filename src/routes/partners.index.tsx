@@ -48,7 +48,7 @@ function PartnersPage() {
                   <h2 className="text-lg font-semibold">{p.name}</h2>
                   <p className="mt-1 text-sm opacity-90 line-clamp-3">{p.bio || "—"}</p>
                   <div className="mt-4 flex gap-2">
-                    <Link to="/partners/$slug" params={{ slug: p.slug }}>
+                    <Link to="/$slug" params={{ slug: p.slug }}>
                       <Button size="sm" variant="secondary" className="gap-2">
                         Join Dashboard <ArrowRight className="h-3.5 w-3.5" />
                       </Button>
