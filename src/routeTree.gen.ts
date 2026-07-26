@@ -25,6 +25,7 @@ import { Route as EventsRouteImport } from './routes/events'
 import { Route as ChartsRouteImport } from './routes/charts'
 import { Route as AtisRouteImport } from './routes/atis'
 import { Route as AtcRouteImport } from './routes/atc'
+import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersIndexRouteImport } from './routes/users.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
@@ -116,6 +117,11 @@ const AtcRoute = AtcRouteImport.update({
   path: '/atc',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SlugRoute = SlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -170,6 +176,7 @@ const ApiPublicDiscordCallbackRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRoute
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRoute
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
@@ -227,6 +235,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRoute
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
@@ -257,6 +266,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$slug'
     | '/atc'
     | '/atis'
     | '/charts'
@@ -285,6 +295,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$slug'
     | '/atc'
     | '/atis'
     | '/charts'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$slug'
     | '/atc'
     | '/atis'
     | '/charts'
@@ -342,6 +354,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SlugRoute: typeof SlugRoute
   AtcRoute: typeof AtcRoute
   AtisRoute: typeof AtisRoute
   ChartsRoute: typeof ChartsRoute
@@ -481,6 +494,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AtcRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$slug': {
+      id: '/$slug'
+      path: '/$slug'
+      fullPath: '/$slug'
+      preLoaderRoute: typeof SlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -579,6 +599,7 @@ const FlightsIdRouteWithChildren = FlightsIdRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SlugRoute: SlugRoute,
   AtcRoute: AtcRoute,
   AtisRoute: AtisRoute,
   ChartsRoute: ChartsRoute,
@@ -606,13 +627,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
