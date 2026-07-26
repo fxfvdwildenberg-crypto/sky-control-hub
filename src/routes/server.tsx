@@ -43,7 +43,7 @@ function ServerPage() {
 
           {!isLoading && user && !unlocked && (
             <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
-              You need the Air Traffic Control role in the ATC365 Discord to access this server.
+              You need the ATC365 role in the ATC365 Discord to access this server.
             </div>
           )}
 
