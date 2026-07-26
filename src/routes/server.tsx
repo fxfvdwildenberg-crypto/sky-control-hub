@@ -32,7 +32,7 @@ function ServerPage() {
           </div>
           <h1 className="text-2xl font-bold">Private Roblox server</h1>
           <p className="text-sm text-muted-foreground">
-            Restricted to members with the <span className="font-mono text-foreground">Air Traffic Control</span> role.
+            Restricted to members with the <span className="font-mono text-foreground">ATC365</span> role.
           </p>
 
           {isLoading && <p className="text-sm text-muted-foreground">Verifying access…</p>}
