@@ -152,7 +152,9 @@ function RootComponent() {
                     </div>
                   </header>
                   <main className="flex-1">
-                    <Outlet />
+                    <AccessGate>
+                      <Outlet />
+                    </AccessGate>
                   </main>
                 </div>
               </div>
