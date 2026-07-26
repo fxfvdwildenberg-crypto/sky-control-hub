@@ -30,7 +30,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersIndexRouteImport } from './routes/users.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as UsersDiscordIdRouteImport } from './routes/users.$discordId'
-import { Route as PartnersSlugRouteImport } from './routes/partners.$slug'
 import { Route as FlightsIdRouteImport } from './routes/flights.$id'
 import { Route as EventsIdRouteImport } from './routes/events.$id'
 import { Route as FlightsIdTicketRouteImport } from './routes/flights.$id.ticket'
@@ -142,11 +141,6 @@ const UsersDiscordIdRoute = UsersDiscordIdRouteImport.update({
   path: '/users/$discordId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PartnersSlugRoute = PartnersSlugRouteImport.update({
-  id: '/partners/$slug',
-  path: '/partners/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FlightsIdRoute = FlightsIdRouteImport.update({
   id: '/flights/$id',
   path: '/flights/$id',
@@ -195,7 +189,6 @@ export interface FileRoutesByFullPath {
   '/voice': typeof VoiceRoute
   '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
-  '/partners/$slug': typeof PartnersSlugRoute
   '/users/$discordId': typeof UsersDiscordIdRoute
   '/partners/': typeof PartnersIndexRoute
   '/users/': typeof UsersIndexRoute
@@ -224,7 +217,6 @@ export interface FileRoutesByTo {
   '/voice': typeof VoiceRoute
   '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
-  '/partners/$slug': typeof PartnersSlugRoute
   '/users/$discordId': typeof UsersDiscordIdRoute
   '/partners': typeof PartnersIndexRoute
   '/users': typeof UsersIndexRoute
@@ -254,7 +246,6 @@ export interface FileRoutesById {
   '/voice': typeof VoiceRoute
   '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
-  '/partners/$slug': typeof PartnersSlugRoute
   '/users/$discordId': typeof UsersDiscordIdRoute
   '/partners/': typeof PartnersIndexRoute
   '/users/': typeof UsersIndexRoute
@@ -285,7 +276,6 @@ export interface FileRouteTypes {
     | '/voice'
     | '/events/$id'
     | '/flights/$id'
-    | '/partners/$slug'
     | '/users/$discordId'
     | '/partners/'
     | '/users/'
@@ -314,7 +304,6 @@ export interface FileRouteTypes {
     | '/voice'
     | '/events/$id'
     | '/flights/$id'
-    | '/partners/$slug'
     | '/users/$discordId'
     | '/partners'
     | '/users'
@@ -343,7 +332,6 @@ export interface FileRouteTypes {
     | '/voice'
     | '/events/$id'
     | '/flights/$id'
-    | '/partners/$slug'
     | '/users/$discordId'
     | '/partners/'
     | '/users/'
@@ -372,7 +360,6 @@ export interface RootRouteChildren {
   ShopRoute: typeof ShopRoute
   VoiceRoute: typeof VoiceRoute
   FlightsIdRoute: typeof FlightsIdRouteWithChildren
-  PartnersSlugRoute: typeof PartnersSlugRoute
   UsersDiscordIdRoute: typeof UsersDiscordIdRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
@@ -529,13 +516,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersDiscordIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/partners/$slug': {
-      id: '/partners/$slug'
-      path: '/partners/$slug'
-      fullPath: '/partners/$slug'
-      preLoaderRoute: typeof PartnersSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/flights/$id': {
       id: '/flights/$id'
       path: '/flights/$id'
@@ -617,7 +597,6 @@ const rootRouteChildren: RootRouteChildren = {
   ShopRoute: ShopRoute,
   VoiceRoute: VoiceRoute,
   FlightsIdRoute: FlightsIdRouteWithChildren,
-  PartnersSlugRoute: PartnersSlugRoute,
   UsersDiscordIdRoute: UsersDiscordIdRoute,
   PartnersIndexRoute: PartnersIndexRoute,
   UsersIndexRoute: UsersIndexRoute,

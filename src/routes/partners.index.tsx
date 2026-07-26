@@ -10,7 +10,7 @@ export const Route = createFileRoute("/partners/")({
   component: PartnersPage,
   head: () => ({
     meta: [
-      { title: "Partner Program — ATC365" },
+      { title: "ATC365 Airlines" },
       { name: "description", content: "Partnered virtual airlines on the ATC365 network." },
     ],
   }),
