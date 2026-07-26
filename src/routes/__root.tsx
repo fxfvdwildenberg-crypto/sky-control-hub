@@ -24,6 +24,7 @@ import { PrefsProvider, useShortcuts } from "@/lib/prefs";
 import { MiniStats } from "@/components/MiniStats";
 import { TokenFlyAnimation } from "@/components/TokenFlyAnimation";
 import { ShortcutCheatsheet } from "@/components/ShortcutCheatsheet";
+import { PageTour } from "@/components/PageTour";
 
 function NotFoundComponent() {
   return (
@@ -157,6 +158,7 @@ function RootComponent() {
               <MiniStats />
               <TokenFlyAnimation />
               <ShortcutCheatsheet />
+              <PageTour />
               <LoginStreakPopup />
               <Toaster />
             </SidebarProvider>

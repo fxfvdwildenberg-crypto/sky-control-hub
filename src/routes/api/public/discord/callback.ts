@@ -16,7 +16,7 @@ export const Route = createFileRoute("/api/public/discord/callback")({
         const clientSecret = process.env.DISCORD_CLIENT_SECRET!;
         const botToken = process.env.DISCORD_BOT_TOKEN!;
         const guildId = process.env.DISCORD_GUILD_ID!;
-        const roleId = process.env.DISCORD_ATC_ROLE_ID!;
+        const roleId = process.env.DISCORD_ATC_ROLE_ID || "1491459844685824051";
 
         // Exchange code for token
         const tokenRes = await fetch("https://discord.com/api/oauth2/token", {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { sfx } from "@/lib/sounds";
 
 type Fly = { id: number; amount: number; x: number; y: number };
 
@@ -12,6 +13,7 @@ export function TokenFlyAnimation() {
       const x = ev.detail.x ?? window.innerWidth / 2;
       const y = ev.detail.y ?? window.innerHeight / 2;
       setItems((v) => [...v, { id, amount: ev.detail.amount, x, y }]);
+      sfx.coin();
       window.setTimeout(() => setItems((v) => v.filter((i) => i.id !== id)), 1400);
     };
     window.addEventListener("tokens-earned", handler);
