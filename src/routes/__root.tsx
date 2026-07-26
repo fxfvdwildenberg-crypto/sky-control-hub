@@ -25,6 +25,7 @@ import { MiniStats } from "@/components/MiniStats";
 import { TokenFlyAnimation } from "@/components/TokenFlyAnimation";
 import { ShortcutCheatsheet } from "@/components/ShortcutCheatsheet";
 import { PageTour } from "@/components/PageTour";
+import { AccessGate } from "@/components/AccessGate";
 
 function NotFoundComponent() {
   return (
