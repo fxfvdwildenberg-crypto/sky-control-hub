@@ -9,6 +9,7 @@ export const getCurrentUser = createServerFn({ method: "GET" }).handler(async ()
     username: session.data.username ?? "",
     avatar: session.data.avatar ?? null,
     hasAtcRole: !!session.data.hasAtcRole,
+    hasControllerRole: !!session.data.hasControllerRole,
   };
 });
 

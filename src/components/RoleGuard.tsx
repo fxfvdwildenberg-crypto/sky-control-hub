@@ -32,14 +32,14 @@ export function RoleGuard({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!user.hasAtcRole) {
+  if (!user.hasControllerRole) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center px-4">
         <div className="max-w-md rounded-xl border border-destructive/40 bg-card p-6 text-center">
           <ShieldAlert className="mx-auto mb-3 h-8 w-8 text-destructive" />
-          <h2 className="text-lg font-semibold">ATC365 role required</h2>
+          <h2 className="text-lg font-semibold">Air Traffic Control role required</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Hi <span className="font-mono">{user.username}</span> — you're signed in, but your Discord account doesn't have the <strong>ATC365</strong> role in the ATC365 server.
+            Hi <span className="font-mono">{user.username}</span> — controller tools are limited to members with the <strong>Air Traffic Control</strong> role in the ATC365 server.
           </p>
           <a
             href="https://discord.gg/pR6rWqhh9E"
@@ -47,7 +47,7 @@ export function RoleGuard({ children }: { children: ReactNode }) {
             rel="noreferrer"
             className="mt-4 inline-block"
           >
-            <Button variant="outline">Join ATC365 Discord</Button>
+            <Button variant="outline">Request the role on Discord</Button>
           </a>
         </div>
       </div>

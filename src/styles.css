@@ -280,3 +280,20 @@
   --ring: oklch(0.78 0.14 340);
 }
 [data-seasonal="easter"]:not(.dark) { --background: oklch(0.98 0.02 340); }
+
+/* ---------- Reduce motion ---------- */
+[data-reduce-motion="on"] *,
+[data-reduce-motion="on"] *::before,
+[data-reduce-motion="on"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+[data-reduce-motion="on"] .animate-pulse,
+[data-reduce-motion="on"] .animate-spin,
+[data-reduce-motion="on"] .animate-bounce,
+[data-reduce-motion="on"] .animate-float,
+[data-reduce-motion="on"] .animate-pulse-soft {
+  animation: none !important;
+}

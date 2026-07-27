@@ -26,6 +26,7 @@ import { TokenFlyAnimation } from "@/components/TokenFlyAnimation";
 import { ShortcutCheatsheet } from "@/components/ShortcutCheatsheet";
 import { PageTour } from "@/components/PageTour";
 import { AccessGate } from "@/components/AccessGate";
+import { A11yProvider } from "@/lib/a11y";
 
 function NotFoundComponent() {
   return (
@@ -127,6 +128,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
+        <A11yProvider>
         <PrefsProvider>
           <FlightStoreProvider>
             <SidebarProvider>
@@ -167,6 +169,7 @@ function RootComponent() {
             </SidebarProvider>
           </FlightStoreProvider>
         </PrefsProvider>
+        </A11yProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

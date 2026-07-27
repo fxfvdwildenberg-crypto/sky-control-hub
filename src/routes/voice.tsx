@@ -61,7 +61,7 @@ function VoicePage() {
 
   const guildId = data?.guildId;
   const myClaim = data?.claims.find((c) => c.discord_id === user?.discordId);
-  const canClaimAtc = !!user?.hasAtcRole;
+  const canClaimAtc = !!user?.hasControllerRole;
 
   const filtered = useMemo(() => {
     const channels = data?.channels ?? [];

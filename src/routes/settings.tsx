@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { usePrefs, DEFAULT_SHORTCUTS, AVAILABLE_PAGES } from "@/lib/prefs";
-import { Settings as SettingsIcon, Pin, X } from "lucide-react";
+import { useA11y } from "@/lib/a11y";
+import { Settings as SettingsIcon, Pin, X, Accessibility } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/settings")({
 
 function SettingsPage() {
   const { prefs, update, siteTheme, activeSeasonal } = usePrefs();
+  const { reduceMotion, soundEnabled, setReduceMotion, setSoundEnabled } = useA11y();
   const [shortcuts, setShortcuts] = useState(prefs.shortcuts);
   useEffect(() => setShortcuts(prefs.shortcuts), [prefs.shortcuts]);
   const [newPin, setNewPin] = useState("/");
@@ -39,6 +41,26 @@ function SettingsPage() {
           <p className="text-sm text-muted-foreground">Personalize your experience.</p>
         </div>
       </header>
+
+      <Card>
+        <CardHeader><CardTitle className="flex items-center gap-2"><Accessibility className="h-4 w-4" /> Accessibility</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="text-sm font-medium">Reduce motion</div>
+              <div className="text-xs text-muted-foreground">Disable non-essential animations and transitions. Defaults to your system preference.</div>
+            </div>
+            <Switch checked={reduceMotion} onCheckedChange={setReduceMotion} aria-label="Toggle reduced motion" />
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="text-sm font-medium">Sound effects</div>
+              <div className="text-xs text-muted-foreground">Play subtle audio cues for clicks, rewards, and notifications.</div>
+            </div>
+            <Switch checked={soundEnabled} onCheckedChange={setSoundEnabled} aria-label="Toggle sound effects" />
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader><CardTitle>Mini stats panel</CardTitle></CardHeader>
