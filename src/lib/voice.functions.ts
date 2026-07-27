@@ -118,8 +118,8 @@ export const claimAtcSpot = createServerFn({ method: "POST" })
   .inputValidator((data: { channelId: string; channelName: string }) => data)
   .handler(async ({ data }) => {
     const session = await getAppSession();
-    if (!session.data.discordId || !session.data.hasAtcRole) {
-      throw new Error("ATC role required");
+    if (!session.data.discordId || !session.data.hasControllerRole) {
+      throw new Error("Air Traffic Control role required");
     }
     const sb = admin();
 

@@ -154,7 +154,7 @@ export const decideFlightPlan = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const s = await getAppSession();
     if (!s.data.discordId) throw new Error("Not signed in");
-    if (!s.data.hasAtcRole) throw new Error("ATC role required");
+    if (!s.data.hasControllerRole) throw new Error("Air Traffic Control role required");
     const patch: Record<string, unknown> = {
       approval_status: data.decision,
       approved_at: data.decision === "approved" ? new Date().toISOString() : null,
