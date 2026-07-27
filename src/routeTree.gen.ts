@@ -25,11 +25,11 @@ import { Route as EventsRouteImport } from './routes/events'
 import { Route as ChartsRouteImport } from './routes/charts'
 import { Route as AtisRouteImport } from './routes/atis'
 import { Route as AtcRouteImport } from './routes/atc'
+import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersIndexRouteImport } from './routes/users.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as UsersDiscordIdRouteImport } from './routes/users.$discordId'
-import { Route as PartnersSlugRouteImport } from './routes/partners.$slug'
 import { Route as FlightsIdRouteImport } from './routes/flights.$id'
 import { Route as EventsIdRouteImport } from './routes/events.$id'
 import { Route as FlightsIdTicketRouteImport } from './routes/flights.$id.ticket'
@@ -116,6 +116,11 @@ const AtcRoute = AtcRouteImport.update({
   path: '/atc',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SlugRoute = SlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -134,11 +139,6 @@ const PartnersIndexRoute = PartnersIndexRouteImport.update({
 const UsersDiscordIdRoute = UsersDiscordIdRouteImport.update({
   id: '/users/$discordId',
   path: '/users/$discordId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PartnersSlugRoute = PartnersSlugRouteImport.update({
-  id: '/partners/$slug',
-  path: '/partners/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FlightsIdRoute = FlightsIdRouteImport.update({
@@ -170,6 +170,7 @@ const ApiPublicDiscordCallbackRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRoute
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
@@ -188,7 +189,6 @@ export interface FileRoutesByFullPath {
   '/voice': typeof VoiceRoute
   '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
-  '/partners/$slug': typeof PartnersSlugRoute
   '/users/$discordId': typeof UsersDiscordIdRoute
   '/partners/': typeof PartnersIndexRoute
   '/users/': typeof UsersIndexRoute
@@ -198,6 +198,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRoute
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
@@ -216,7 +217,6 @@ export interface FileRoutesByTo {
   '/voice': typeof VoiceRoute
   '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
-  '/partners/$slug': typeof PartnersSlugRoute
   '/users/$discordId': typeof UsersDiscordIdRoute
   '/partners': typeof PartnersIndexRoute
   '/users': typeof UsersIndexRoute
@@ -227,6 +227,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRoute
   '/atc': typeof AtcRoute
   '/atis': typeof AtisRoute
   '/charts': typeof ChartsRoute
@@ -245,7 +246,6 @@ export interface FileRoutesById {
   '/voice': typeof VoiceRoute
   '/events/$id': typeof EventsIdRoute
   '/flights/$id': typeof FlightsIdRouteWithChildren
-  '/partners/$slug': typeof PartnersSlugRoute
   '/users/$discordId': typeof UsersDiscordIdRoute
   '/partners/': typeof PartnersIndexRoute
   '/users/': typeof UsersIndexRoute
@@ -257,6 +257,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$slug'
     | '/atc'
     | '/atis'
     | '/charts'
@@ -275,7 +276,6 @@ export interface FileRouteTypes {
     | '/voice'
     | '/events/$id'
     | '/flights/$id'
-    | '/partners/$slug'
     | '/users/$discordId'
     | '/partners/'
     | '/users/'
@@ -285,6 +285,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$slug'
     | '/atc'
     | '/atis'
     | '/charts'
@@ -303,7 +304,6 @@ export interface FileRouteTypes {
     | '/voice'
     | '/events/$id'
     | '/flights/$id'
-    | '/partners/$slug'
     | '/users/$discordId'
     | '/partners'
     | '/users'
@@ -313,6 +313,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$slug'
     | '/atc'
     | '/atis'
     | '/charts'
@@ -331,7 +332,6 @@ export interface FileRouteTypes {
     | '/voice'
     | '/events/$id'
     | '/flights/$id'
-    | '/partners/$slug'
     | '/users/$discordId'
     | '/partners/'
     | '/users/'
@@ -342,6 +342,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SlugRoute: typeof SlugRoute
   AtcRoute: typeof AtcRoute
   AtisRoute: typeof AtisRoute
   ChartsRoute: typeof ChartsRoute
@@ -359,7 +360,6 @@ export interface RootRouteChildren {
   ShopRoute: typeof ShopRoute
   VoiceRoute: typeof VoiceRoute
   FlightsIdRoute: typeof FlightsIdRouteWithChildren
-  PartnersSlugRoute: typeof PartnersSlugRoute
   UsersDiscordIdRoute: typeof UsersDiscordIdRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
@@ -481,6 +481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AtcRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$slug': {
+      id: '/$slug'
+      path: '/$slug'
+      fullPath: '/$slug'
+      preLoaderRoute: typeof SlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -507,13 +514,6 @@ declare module '@tanstack/react-router' {
       path: '/users/$discordId'
       fullPath: '/users/$discordId'
       preLoaderRoute: typeof UsersDiscordIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/partners/$slug': {
-      id: '/partners/$slug'
-      path: '/partners/$slug'
-      fullPath: '/partners/$slug'
-      preLoaderRoute: typeof PartnersSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/flights/$id': {
@@ -579,6 +579,7 @@ const FlightsIdRouteWithChildren = FlightsIdRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SlugRoute: SlugRoute,
   AtcRoute: AtcRoute,
   AtisRoute: AtisRoute,
   ChartsRoute: ChartsRoute,
@@ -596,7 +597,6 @@ const rootRouteChildren: RootRouteChildren = {
   ShopRoute: ShopRoute,
   VoiceRoute: VoiceRoute,
   FlightsIdRoute: FlightsIdRouteWithChildren,
-  PartnersSlugRoute: PartnersSlugRoute,
   UsersDiscordIdRoute: UsersDiscordIdRoute,
   PartnersIndexRoute: PartnersIndexRoute,
   UsersIndexRoute: UsersIndexRoute,

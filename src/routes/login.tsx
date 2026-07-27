@@ -32,7 +32,7 @@ function LoginPage() {
             <div>
               <div className="font-semibold">Access denied</div>
               <div className="text-xs opacity-90">
-                You must be a member of the ATC365 Discord with the <strong>Air Traffic Control</strong> role.
+                You must be a member of the ATC365 Discord with the <strong>ATC365</strong> role.
               </div>
             </div>
           </div>
