@@ -4,7 +4,10 @@ export type SessionData = {
   discordId?: string;
   username?: string;
   avatar?: string | null;
+  /** ATC365 role — gates access to the entire site. */
   hasAtcRole?: boolean;
+  /** Air Traffic Control role — gates ATIS and ATC dashboard. */
+  hasControllerRole?: boolean;
 };
 
 export function getAppSession() {
