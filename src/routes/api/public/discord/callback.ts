@@ -16,7 +16,8 @@ export const Route = createFileRoute("/api/public/discord/callback")({
         const clientSecret = process.env.DISCORD_CLIENT_SECRET!;
         const botToken = process.env.DISCORD_BOT_TOKEN!;
         const guildId = process.env.DISCORD_GUILD_ID!;
-        const roleId = process.env.DISCORD_ATC_ROLE_ID || "1491459844685824051";
+        const atc365RoleId = process.env.DISCORD_ATC_ROLE_ID || "1491459844685824051";
+        const controllerRoleId = process.env.DISCORD_CONTROLLER_ROLE_ID || "1493256521772044470";
 
         // Exchange code for token
         const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
@@ -49,16 +50,18 @@ export const Route = createFileRoute("/api/public/discord/callback")({
           avatar: string | null;
         };
 
-        // Check guild membership + role using bot token
+        // Check guild membership + roles using bot token
         const memberRes = await fetch(
           `https://discord.com/api/guilds/${guildId}/members/${user.id}`,
           { headers: { Authorization: `Bot ${botToken}` } }
         );
 
         let hasAtcRole = false;
+        let hasControllerRole = false;
         if (memberRes.ok) {
           const member = (await memberRes.json()) as { roles: string[] };
-          hasAtcRole = member.roles.includes(roleId);
+          hasAtcRole = member.roles.includes(atc365RoleId);
+          hasControllerRole = member.roles.includes(controllerRoleId);
         }
 
         const session = await getAppSession();
@@ -67,11 +70,12 @@ export const Route = createFileRoute("/api/public/discord/callback")({
           username: user.global_name || user.username,
           avatar: user.avatar,
           hasAtcRole,
+          hasControllerRole,
         });
 
         return new Response(null, {
           status: 302,
-          headers: { Location: hasAtcRole ? "/atc" : "/login?error=no_role" },
+          headers: { Location: hasAtcRole ? "/" : "/login?error=no_role" },
         });
       },
     },
